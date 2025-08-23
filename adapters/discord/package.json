@@ -1,0 +1,9 @@
+{ 
+    "name": "discord",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "type": "module",
+    "scripts": {
+        "start": "node --loader ts-node/esm startup.ts"
+    }
+}
