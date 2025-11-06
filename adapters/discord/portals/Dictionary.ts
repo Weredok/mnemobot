@@ -14,9 +14,9 @@ export class DictionaryPortalAtDiscord {
         this.message = message;
     };
 
-    async initialize(userId: string) {
+    async initialize(userId: number) {
         if (!this.dictionary) {
-            this.dictionary = new Dictionary(await User.findOneBy({ discordIDS: userId }));
+            this.dictionary = await Dictionary.findBy({ userId })[0];
             await this.dictionary.syncronize();
         };
 
@@ -80,9 +80,9 @@ export class DictionaryPortalAtDiscord {
                 await defer(interaction);
 
                 switch (feature as "previous" | "next" | "page") {
-                    case "page": 
-                    
-                    break;
+                    case "page":
+
+                        break;
                     case "previous":
                     case "next": {
                         const page = Number(data);
@@ -145,7 +145,7 @@ export class DictionaryPortalAtDiscord {
             new EmbedBuilder().setFooter({ text: `Всего найдено наборов ${this.dictionary.sets.length} | Страница ${page} из ${pages}` }).setTimestamp()
         ];
 
-        const indexes: { index: number, set: Set}[] = [];
+        const indexes: { index: number, set: Set }[] = [];
 
         embeds[0].setDescription(this.dictionary.sets.slice(max * (page - 1), max * page).map((set, index) => {
             indexes.push({ index, set });

@@ -1,7 +1,7 @@
-import { datasource, Flashcard, Preferences, Session, Set, User, } from "database";
-import { ActionRowBuilder, bold, ButtonBuilder, ButtonComponent, ButtonStyle, Client, ComponentType, DMChannel, EmbedBuilder, escapeItalic, InteractionType, MessageComponent, ModalBuilder, SharedSlashCommandOptions, SlashCommandStringOption, TextInputBuilder, TextInputStyle, time } from "discord.js";
-import { ArrayContainedBy, ArrayContains, ILike } from "typeorm";
-import { defer, detectLanguages, Dictionary } from "core";
+import { Flashcard, Preferences, Session, User, } from "database";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ComponentType, DMChannel, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ILike } from "typeorm";
+import { defer, Dictionary } from "core";
 import { setupNewLanguage } from "./interactions/setupNewLanguage.ts";
 import { DictionaryPortalAtDiscord } from "./portals/Dictionary.ts";
 import { reviewWord } from "./interactions/reviewWord.ts";
@@ -113,7 +113,7 @@ client.on("interactionCreate", async (interaction) => {
                                 await defer(interaction);
 
                                 const dictionaryPortal = new DictionaryPortalAtDiscord(dictionary, interaction);
-                                await dictionaryPortal.initialize(interaction.user.id);
+                                await dictionaryPortal.initialize(await User.findOneBy({ discordIDS: interaction.user.id }).then(user => user.id));
 
                                 break;
                             }
@@ -220,7 +220,7 @@ client.on("messageCreate", async (message) => {
             const user = await User.findOneBy({ discordIDS: message.author.id });
             const preferences = await Preferences.findOneBy({ user: user.id })
 
-            if(user.lastAwaited + preferences.idleTimeout > Date.now() ) return ;
+            if (user.lastAwaited + preferences.idleTimeout > Date.now()) return;
 
             const iWord = new WordInteraction(user, message.channel as DMChannel);
 
