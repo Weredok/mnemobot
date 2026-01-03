@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ForeignKey, PrimaryGeneratedColumn } from "typeorm";
+import { Preferences } from "./Preferences.ts";
 
 export enum CEFR {
     A1 = "A1",

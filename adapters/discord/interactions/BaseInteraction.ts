@@ -25,65 +25,12 @@ export class BaseInteraction {
     };
 
     async syncronize(executionAfterSuccess?: (any?) => (void | Promise<void>), executionAfterData?: any) {
-        if (!this.dictionary) {
-            const embeds = [new EmbedBuilder().setAuthor({ name: this.channel.client.user.username, iconURL: this.channel.client.user.displayAvatarURL() }).setTitle("Выберите словарь, с которым хотите взаимодействовать")];
-            const components = [];
-
-            const dictionaries = await Dictionary.findBy({ userId: this.user.id });
-            dictionaries.forEach(async dictionary => { await dictionary.syncronize() });
-            console.log(dictionaries.map(dictionary => console.log(dictionary.id)))
-
-
-            let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-                new ButtonBuilder().setCustomId(`language:create:noneed`).setLabel("Создать").setStyle(ButtonStyle.Primary)
-            );
-
-            for (let i = 0; i < dictionaries.length; i++) {
-
-                row.addComponents(
-                    new ButtonBuilder().setCustomId(`e` + dictionaries[i]?.id).setLabel(dictionaries[i].language.name).setStyle(ButtonStyle.Success)
-                );
-                embeds[0].addFields({
-                    name: dictionaries[i].language.name,
-                    value: `Словарь на n (в будущем доделаю) слов`
-                })
-                if (row.components.length === 5 || i === dictionaries.length - 1) {
-                    components.push(row);
-                    row = new ActionRowBuilder<ButtonBuilder>();
-                }
-            };
-
-            // components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
-            //     new ButtonBuilder().setCustomId(`ew` + dictionaries[i]?.id).setLabel(dictionaries[i].language.name).setStyle(ButtonStyle.Primary)
-            // ));
-            // embeds[0].setDescription(embeds[0].data.description + `\n${i}. ${dictionaries[i].language.name}`);
-
-
-            const message = await this.channel.send({ embeds, components });
-            const collector = message.createMessageComponentCollector({ time: this.dictionary.preferences.idleTimeout });
-
-            collector.once("collect", async (interaction) => {
-                await interaction.message.delete();
-                this.dictionary = await Dictionary.findOneBy({ userId: this.user.id, language: { source: ILike(this.user.languages[interaction.customId.split(":")[1]]) } });
-                this.dictionary.language.source = this.user.languages[interaction.customId.split(":")[1]];
-                await this.dictionary.syncronize();
-                if (executionAfterSuccess) executionAfterData ? await executionAfterSuccess(executionAfterData) : await executionAfterSuccess();
-
-                await message.delete();
-                return this.dictionary
-            });
-
-            collector.once("end", async () => {
-                await message.delete();
-            });
-
-            return;
-        } else {
+        
             await this.dictionary.syncronize();
             if (executionAfterSuccess) executionAfterData ? await executionAfterSuccess(executionAfterData) : await executionAfterSuccess();
 
             return;
-        }
+        
     };
 
     async enterRequest(data: string | string[], ai: boolean = true) {

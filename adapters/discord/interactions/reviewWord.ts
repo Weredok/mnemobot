@@ -46,7 +46,7 @@ export class reviewWord {
         }
 
         const embeds: EmbedBuilder[] = [
-            new EmbedBuilder().setAuthor({ name: this.interaction.user.username, iconURL: this.interaction.user.displayAvatarURL() }).setTitle(`Повторение слов из словаря ${this.dictionary.language} (${this.dictionary.preferences.review.side}-side)`).setURL("https://discord.com").setFooter({ text: `Версия бота: 0.1.0-dev ${this.flashcard.lastReviewed ? ` | Последний раз это слово было повторено` : ""}`, iconURL: this.interaction.client.user.displayAvatarURL() }).setTimestamp(this.flashcard.lastReviewed || new Date()).setDescription(`Помните ли вы перевод слова __**${this.flashcard[this.dictionary.preferences.review.side]}**__?\n\n*${prediction}*`)
+            new EmbedBuilder().setAuthor({ name: this.interaction.user.username, iconURL: this.interaction.user.displayAvatarURL() }).setTitle(`Повторение слов из словаря ${this.dictionary.language} (${this.dictionary.preferences.review.side}-side)`).setURL("https://discord.com").setFooter({ text: `Версия бота: ${process.env.version} ${this.flashcard.lastReviewed ? ` | Последний раз это слово было повторено` : ""}`, iconURL: this.interaction.client.user.displayAvatarURL() }).setTimestamp(this.flashcard.lastReviewed || new Date()).setDescription(`Помните ли вы перевод слова __**${this.flashcard[this.dictionary.preferences.review.side]}**__?\n\n*${prediction}*`)
         ];
 
         //(||${this.flashcard[this.dictionary.prefferences.review.side === "front" ? "back" : "front"]}||)?\n\n${this.dictionary.prefferences.review.answer}

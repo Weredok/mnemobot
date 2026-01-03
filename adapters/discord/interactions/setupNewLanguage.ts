@@ -4,7 +4,7 @@ import { createFolder } from "./createFolder.ts";
 import { createSet } from "./createSet.ts";
 import { Preferences, User } from "database";
 
-export async function setupNewLanguage(interaction: ModalSubmitInteraction | ButtonInteraction | ChatInputCommandInteraction, dictionary: Dictionary, language: string) {
+export async function setupNewLanguage(interaction: ModalSubmitInteraction | ButtonInteraction | ChatInputCommandInteraction, language: string) {
     await defer(interaction);
     dictionary = new Dictionary();
     dictionary.userId = (await (await User.findOneBy({ discordIDS: interaction.user.id })).id)
@@ -12,8 +12,8 @@ export async function setupNewLanguage(interaction: ModalSubmitInteraction | But
 
     dictionary.language = {
         source: language,
-        target: await Preferences.findOneBy({ user: dictionary.userId }).then(preferences => preferences.interfaceLanguage),
-        name: `${language} - ${await Preferences.findOneBy({ user: dictionary.userId }).then(preferences => preferences.interfaceLanguage)}`
+        target: await Preferences.findOneBy({ id: dictionary.userId }).then(preferences => preferences.interfaceLanguage),
+        name: `${language} - ${await Preferences.findOneBy({ id: dictionary.userId }).then(preferences => preferences.interfaceLanguage)}`
 
     }
     dictionary.folders = [];

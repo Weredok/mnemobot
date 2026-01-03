@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ForeignKey, PrimaryColumn } from "typeorm";
 import { User } from "./User.ts";
 import { type DictionaryFilters } from "core";
 
@@ -32,10 +32,11 @@ interface ReviewOptions {
 
 @Entity()
 class Preferences extends BaseEntity {
-    @PrimaryColumn("numeric")
-    user: number;
+    @ForeignKey(() => User)
+    @PrimaryColumn("integer")
+    id: number;
 
-    @PrimaryColumn("text")
+    @Column("text")
     language: string
 
     @Column("text", { default: "Russian" })
@@ -71,7 +72,7 @@ class Preferences extends BaseEntity {
     review: ReviewOptions
 
     async init(user: User) {
-        this.user = user.id
+        this.id = user.id
         this.language = user.languages[0];
         this.dictionaryFilters = {
             frequency: false,

@@ -1,56 +1,15 @@
 import { SlashCommandStringOption } from "discord.js";
 import { DiscordClient as client } from "./index.ts";
 import { Dictionary } from "core";
-import { CEFR, User } from "database";
+import { CEFR, Preferences, User } from "database";
 import { renewal } from "core/ai/Renewal.ts";
 
 client.once("ready", async () => {
-  const dictionary = new Dictionary();
-  dictionary.userId = 0;
-  dictionary.language = {
-    source: "Russian",
-    target: "English",
-    name: "Russian - English",
-  };
-  dictionary.folders = [];
-  dictionary.sets = [];
-  dictionary.flashcards = [];
-  dictionary.folderIds = [];
-  dictionary.setIds = [];
-  dictionary.flashcardIds = [];
-
-  // await dictionary.save();
-
-  const dictionaries = await Dictionary.findBy({ userId: 0 });
-  console.log(dictionaries);
-
-  const developer = new User();
-  developer.awcTime = 7500;
-  developer.id = 0;
-  developer.languages = ["Russian", "English"];
-  developer.sessions = [];
-  developer.sets = [];
-  developer.wordsTotal = 0;
-  developer.telegramIDs = [];
-  developer.discordIDS = "1276300934141579305";
-  developer.aiModelSelecting = {};
-  developer.aiRestrictions = [];
-  developer.aiUsing = [];
-  developer.knowing = {
-    Russian: CEFR.C2,
-    English: CEFR.B2,
-  };
-
-  // await developer.save();
-  await User.find();
+  
 
   const commands = [
     {
       name: "start",
-      description: "test",
-    },
-    {
-      name: "dictionary",
       description: "test",
     },
     {
@@ -75,11 +34,15 @@ client.once("ready", async () => {
   dev.sets = [];
   dev.wordsTotal = 0;
   dev.languages = ["Russian", "English"];
-  dev.knowing = { Russian: CEFR.A1 };
+  dev.knowing = { Russian: CEFR.A1, English: CEFR.A1 };
   dev.aiUsing = [];
   dev.aiRestrictions = [];
-
   await dev.save();
+
+const prefs = new Preferences();
+await prefs.init(dev)
+await prefs.save();
+
   await renewal(1, {
     notice: "dev tests",
     timestamp: Date.now(),
