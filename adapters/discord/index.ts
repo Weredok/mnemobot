@@ -232,4 +232,4 @@ client.on("messageCreate", async (message) => {
 
 client.login("MTMyNjMyOTA2OTQyMzI5NjU2Mw.Glyq5H.23wU9Cm3kV4i3OwAomEfHfesWiM0zUtcE_f1fA");
 
-export { client }
+export { client as DiscordClient }

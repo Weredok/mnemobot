@@ -10,30 +10,31 @@ import { Preferences } from "./models/Preferences.ts";
 import { config } from "dotenv";
 import fs from "fs";    
 import { Dictionary } from "core";
+import { Notification } from "./models/Notification.ts";
 config({ path: "./../../.env" });
 
-console.log(process.env.url)
 const datasource = new DataSource({
-    // type: "postgres",
-    // url: "postgres://pterodactyl:0NNR7H985JIZBFK2@dono-01.danbot.host:9474/postgres",
-    type: "better-sqlite3",
-    database: "../../db.sql",
+    type: "postgres",
+    url: "postgres://pterodactyl:0NNR7H985JIZBFK2@dono-01.danbot.host:9474/postgres",
+    // type: "better-sqlite3",
+    // database: "db.sql",
+    dropSchema: true,
     synchronize: true,
-    entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary],
+    entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary, Notification],
 });
 
 
 
-// User.useDataSource(datasource);
-// Set.useDataSource(datasource);
-// Flashcard.useDataSource(datasource);
-// Session.useDataSource(datasource);
-// Folder.useDataSource(datasource);
-// Log.useDataSource(datasource);
-// Preferences.useDataSource(datasource);
-    await datasource.initialize().then((ds) => { console.log(`[${new Date().toLocaleString()}]: База данных ${ds.options.type} успешно подключена`) }).catch((reason) => console.error(`[${new Date().toLocaleString()}]: База данных не была подключена из-за неизвестной ошибки\n${reason}`));
+User.useDataSource(datasource);
+Set.useDataSource(datasource);
+Flashcard.useDataSource(datasource);
+Session.useDataSource(datasource);
+Folder.useDataSource(datasource);
+Log.useDataSource(datasource);
+Preferences.useDataSource(datasource);
 
+await datasource.initialize().then((ds) => { console.log(`[${new Date().toLocaleString()}]: База данных ${ds.options.type} успешно подключена`) })
 export { datasource }
-export { Flashcard, Session, User, Set, Folder, Preferences, CEFR }
+export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification }
 export type { AiUsageQuota, AiUsageRecord } from "./models/User.ts";
 export type { ResponseInfo }

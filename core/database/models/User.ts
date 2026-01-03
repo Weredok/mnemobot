@@ -58,7 +58,7 @@ export class User extends BaseEntity {
 
     @Column("simple-array")
     // Список Telegram-аккаунтов
-    telegramIDs: string[]
+    telegramIDs: number[]
 
     @Column("text")
     // Список Discord-аккаунтов
