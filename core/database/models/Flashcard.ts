@@ -77,14 +77,13 @@ class Flashcard extends BaseEntity {
     const type = preferences.review.sm2.mode;
     let q: number = 1;
     let awc = Number(user.awcTime);
-    console.log(`typeof awc (User): ${typeof user.awcTime}\ntypeof aws (Number): ${typeof awc}\ntypeof ping (p): ${typeof p}\ntypeof time (t): ${typeof t}`, user);
-    console.log("asw", awc + p, t)
-    let w: number = t - (awc + p);
+  
+    let w: number = t - (awc - p);
     let m: number = 4 * (awc + p);
 
     switch (type) {
       case "dynamic":
-        q = (5 - 4 / (Math.min(w, m) / m)) * Number(c);
+        q = (5 - 4 * (Math.min(w, m) / m)) * Number(c);
         console.log(q);
         break;
       case "static":

@@ -143,6 +143,9 @@ export class Notification extends BaseEntity {
                 userID: id,
                 messageID: message.message_id,
               });
+
+    await this.save();
+
             } catch {}
           },
           this.data.datestamp - Date.now() || 1000,
@@ -169,6 +172,7 @@ export class Notification extends BaseEntity {
               messageID: message.id,
               channel_id: message.channel.id,
             });
+            await this.save();
 
             console.log(this.data.discordMessageIDs);
           } catch (e) {

@@ -72,7 +72,7 @@ export class Spawn extends BaseEntity {
     } else if (Date.now() - this.at >= 1000 * 60 * 60 * 6) {
       await this.ask();
     } else {
-   // r
+      // r
     }
   }
 
@@ -98,7 +98,7 @@ export class Spawn extends BaseEntity {
 
     await notification.send();
     this.uuid = notification.uuid;
-    return notification;
+    return notification.uuid;
   }
 
   async findNeedenFlashcards() {
@@ -126,6 +126,16 @@ export class Spawn extends BaseEntity {
     if (!this.flashcards.length) await this.findNeedenFlashcards();
 
     const flashcard = this.flashcards[step - 1];
+
+    if (!flashcard) {
+      this.user.reviewing = false;
+      await this.user.save();
+
+      await (message as MessageDiscord)?.reply({
+        content: `No flashcards to review\n\n${this.flashcards.map((f) => f.quality[f.quality.length - 1]).join(", ")}`,
+      });
+      return;
+    }
 
     if (!notification) {
       notification = await Notification.findOneBy({ uuid: this.uuid });
@@ -199,7 +209,7 @@ export class Spawn extends BaseEntity {
           } = await flashcard.review(
             isCorrect,
             DiscordClient.ws.ping + pingMsDb,
-           Date.now() - datetime,
+            Date.now() - datetime,
           );
 
           await (message as MessageDiscord).reply({
