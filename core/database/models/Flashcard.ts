@@ -83,6 +83,7 @@ class Flashcard extends BaseEntity {
     switch (type) {
       case "dynamic":
         q = (5 - 4 / (Math.min(w, m) / m)) * Number(c);
+        console.log(q);
         break;
       case "static":
         if (c && t < 5000) {
@@ -128,6 +129,8 @@ class Flashcard extends BaseEntity {
           this.halfLifeHours,
           24 * 365, // 1 год
         );
+
+        console.log(baseHours, growth, this.intervalReviewCount, this.strength, this.halfLifeHours);
         break;
 
       case "static":

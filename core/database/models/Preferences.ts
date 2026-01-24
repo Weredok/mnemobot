@@ -143,7 +143,7 @@ class Preferences extends BaseEntity {
             },
             sm2: {
                 enabled: true,
-                mode: "none",
+                mode: "dynamic",
                 sm2Interval: 2.5
             },
             "answer": {

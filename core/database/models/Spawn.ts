@@ -200,7 +200,7 @@ export class Spawn extends BaseEntity {
           } = await flashcard.review(
             isCorrect,
             DiscordClient.ws.ping + pingMsDb,
-            datetime,
+            datetime - Date.now(),
           );
 
           await (message as MessageDiscord).reply({
