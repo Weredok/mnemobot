@@ -11,6 +11,7 @@ import { config } from "dotenv";
 import fs from "fs";    
 import { Dictionary } from "core";
 import { Notification } from "./models/Notification.ts";
+import { Spawn } from "./models/Spawn.ts";
 config({ path: "./../../.env" });
 
 const datasource = new DataSource({
@@ -20,7 +21,7 @@ const datasource = new DataSource({
     // database: "db.sql",
     dropSchema: true,
     synchronize: true,
-    entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary, Notification],
+    entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary, Notification, Spawn],
 });
 
 
@@ -35,6 +36,6 @@ Preferences.useDataSource(datasource);
 
 await datasource.initialize().then((ds) => { console.log(`[${new Date().toLocaleString()}]: База данных ${ds.options.type} успешно подключена`) })
 export { datasource }
-export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification }
+export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification, Spawn }
 export type { AiUsageQuota, AiUsageRecord } from "./models/User.ts";
 export type { ResponseInfo }

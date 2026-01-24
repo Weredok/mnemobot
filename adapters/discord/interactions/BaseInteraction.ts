@@ -9,21 +9,24 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, DMChannel, EmbedBuilder, 
 import { ILike } from "typeorm";
 import fs from "node:fs";
 
-
+/**
+ * Класс базового взаимодействия пользователя с словарём
+ */
 export class BaseInteraction {
-    id: string;
     user: User;
     channel: DMChannel;
     dictionary?: Dictionary;
 
     constructor(user: User, channel: DMChannel, dictionary?: Dictionary) {
-        this.id = randomUUID();
         this.user = user;
         this.channel = channel;
         this.dictionary = dictionary
-        console.log(this.user.id + `e`)
     };
 
+    /**
+     * Функция для синхронизации словаря и последующего выполнения заданой функции с заданными параметром
+     * Может дополняться, если синхронизировать надо что-то помимо словаря
+     */
     async syncronize(executionAfterSuccess?: (any?) => (void | Promise<void>), executionAfterData?: any) {
         
             await this.dictionary.syncronize();
@@ -33,6 +36,9 @@ export class BaseInteraction {
         
     };
 
+    /**
+     * Запрос к ИИ, будет вынесено из под адаптера в ядро проекта
+     */
     async enterRequest(data: string | string[], ai: boolean = true) {
         this.user.lastAwaited = 0;
         await this.user.save();
@@ -42,11 +48,13 @@ export class BaseInteraction {
 
             if (quota) {
                 const rq = `From ${isSourceLanguage ? this.dictionary.language.source : this.dictionary.language.target} (${this.user.knowing[isSourceLanguage ? this.dictionary.language.source : this.dictionary.language.target] || "B1"}) to ${isSourceLanguage ? this.dictionary.language.target : this.dictionary.language.source} (${this.user.knowing[isSourceLanguage ? this.dictionary.language.target : this.dictionary.language.source] || "B1"}). Word: ${data}.`
+
+                console.log(rq)
                 let datestamp = Date.now();
                 const response = await OpenAIClient.responses.create({
                     model: "gpt-4o-mini-2024-07-18",
                     instructions: fs.readFileSync("../../instructions/translator.txt", "utf-8"),
-                    input: data,
+                    input: rq,
                     temperature: 0.05,
                     max_output_tokens: 200,
                 })
@@ -63,7 +71,6 @@ export class BaseInteraction {
                     ping: Date.now() - datestamp
                 });
 
-                console.log(this.user.aiUsing)
                 await this.user.save();
 
 
@@ -80,22 +87,27 @@ export class BaseInteraction {
                 await this.dictionary.syncronize();
                 return flashcard
 
-
             } else {
                 return "У вас нет квот для использования функций ИИ. Свяжитесь с разработчиком для получения новой.";
             }
 
         } else {
 
+            let languages: string[] = []
+            for(let i = 0; i < data.length; i++) {
+                languages.push(...detectLanguages(data[i]))
+            };
+
+            if(!languages.every(lg => lg === languages[0])) {
+                return "Неверные параметры. Запрошенные слова задетекчены под разными языками";
+            } 
+
             const termsIsSourceLang = detectLanguages(data[0]).includes(this.dictionary.language.source.slice(0, 2).toLowerCase());
 
-            console.log(termsIsSourceLang, data)
             const terms = data[termsIsSourceLang ? 0 : 1].split(", ");
             const translations = data[termsIsSourceLang ? 1 : 0].split(", ");
-            console.log(terms, translations)
 
             if (terms.length > 1 && translations.length > 1) {
-                console.log("fls")
 
                 const flashcards: Flashcard[] = [];
                 for (let i = 1; i < terms.length; i++) {
@@ -113,7 +125,6 @@ export class BaseInteraction {
 
                 return flashcards
             } else {
-                console.log("fl")
                 const flashcard = new Flashcard();
                 flashcard.front = [terms[0]];
                 flashcard.back = [translations[0]];
@@ -130,6 +141,6 @@ export class BaseInteraction {
 
     async log(systemMessage: string) {
         const channel = await this.channel.client.channels.fetch("1406670575161839616") as ForumThreadChannel;
-        await channel.send(`[\`${this.id}\`]: ${systemMessage}]`)
+        await channel.send(`${systemMessage}]`)
     }
 }

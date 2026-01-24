@@ -84,5 +84,9 @@ export class User extends BaseEntity {
     @Column("simple-json", { nullable: true })
     aiModelSelecting: {}
 
+    @Column("numeric", { default: Date.now() })
+    registeredAt: number   
     
+    @Column("boolean", { default: false })
+    reviewing: boolean
 }

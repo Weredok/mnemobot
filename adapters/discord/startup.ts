@@ -27,29 +27,29 @@ client.once("ready", async () => {
 
   // @ts-ignore
   await client.application?.commands.set(commands);
-  const dev = new User();
-  dev.telegramIDs = [8097145027];
-  dev.discordIDS = "1276300934141579305";
-  dev.sessions = [];
-  dev.sets = [];
-  dev.wordsTotal = 0;
-  dev.languages = ["Russian", "English"];
-  dev.knowing = { Russian: CEFR.A1, English: CEFR.A1 };
-  dev.aiUsing = [];
-  dev.aiRestrictions = [];
-  await dev.save();
+//   const dev = new User();
+//   dev.telegramIDs = [8097145027];
+//   dev.discordIDS = "1276300934141579305";
+//   dev.sessions = [];
+//   dev.sets = [];
+//   dev.wordsTotal = 0;
+//   dev.languages = ["Russian", "English"];
+//   dev.knowing = { Russian: CEFR.A1, English: CEFR.A1 };
+//   dev.aiUsing = [];
+//   dev.aiRestrictions = [];
+//   await dev.save();
 
-const prefs = new Preferences();
-await prefs.init(dev)
-await prefs.save();
+// const prefs = new Preferences();
+// await prefs.init(dev)
+// await prefs.save();
 
-  await renewal(1, {
-    notice: "dev tests",
-    timestamp: Date.now(),
-    time: 9e90,
-    renewal: 9e90,
-    model: "gpt-4o-mini",
-    output: 9e90,
-    input: 9e90,
-  });
+//   await renewal(dev.id, {
+//     notice: "dev tests",
+//     timestamp: Date.now(),
+//     time: 9e90,
+//     renewal: 9e90,
+//     model: "gpt-4o-mini",
+//     output: 9e90,
+//     input: 9e90,
+//   });
 });

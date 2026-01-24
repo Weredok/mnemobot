@@ -30,13 +30,52 @@ interface ReviewOptions {
     };
 }
 
+// Настройки поведения системы, действующие во время добавления или массовой загрузки в словарь
+interface EnterOptions {
+    // Тип ввода перевода 
+    enterringTranslateType: EnterManageOptions,
+    // Генерация примера   
+    generateExampleType: EnterManageOptions,
+    // Предпочитаемый язык ввода
+    selectSourceLanguageType: EnterManageOptions,
+    // Предпочитаемый язык-цель
+    selectTargetLanguageType: EnterManageOptions,
+    // Поведение автосохранения
+    autoSave: boolean,
+    // Искать ли перевод в глобальной базе данных перед тем, как делать автозапрос в ИИ
+    searchGlobalBeforeAI: boolean,
+    // Искать ли перевод в глобальной базе данных перед тем, как спрашивать пользователя мануальный перевод
+    searchGlobalBeforeManual: boolean,
+    // Модель для генерации ответов (настраивает разработчик)
+    model: string,
+    // Первый период для повторения
+    firstIntervalReview: number, 
+}
+
+export enum EnterManageOptions {
+    // Всегда использовать ИИ
+    AlwaysAi, 
+    // Всегда требовать ручной ввод
+    AlwaysManual,
+    // Всегда спрашивать поведение
+    Ask, 
+    // Ждать ручной ввод перед автоматическим
+    WaitForManualBeforeAuto,
+    // Не использовать
+    Never, 
+    // Отключено
+     Disabled
+}
+
 @Entity()
 class Preferences extends BaseEntity {
     @ForeignKey(() => User)
     @PrimaryColumn("integer")
+    // Айди пользователя, чьи настройки сохраняются
     id: number;
 
     @Column("text")
+    // Язык
     language: string
 
     @Column("text", { default: "Russian" })
@@ -52,7 +91,7 @@ class Preferences extends BaseEntity {
     account: string;
 
     @Column("numeric", { default: 1000 * 60 * 5 })
-    // Время бездействия, после которого все кнопки будут заблокированы
+    // Время бездействия, после которого все кнопки будут заблокированы, а сообщения - удалены
     // Минимум 1000 * 30
     // Максимум 1000 * 60 * 5
     idleTimeout: number
@@ -66,10 +105,24 @@ class Preferences extends BaseEntity {
     recomendations: boolean;
 
     @Column("simple-json")
+    // Настройки работы словаря
     dictionaryFilters: DictionaryFilters
 
     @Column("simple-json", { nullable: true })
+    // Настройки поведения во время повторения слов (самое частое)
     review: ReviewOptions
+
+    @Column("text", { nullable: true })
+    // Последний язык, который использовался пользователем для изучения
+    lastTarget: string
+
+    @Column("simple-json", { nullable: true })
+    // Автоматический перевод
+    enter: EnterOptions
+
+    @Column("boolean", { default: true })
+    // При поиске в глобальной базе данных данные пользовтеля будут скрыты
+    anonymous: boolean;
 
     async init(user: User) {
         this.id = user.id
@@ -99,6 +152,18 @@ class Preferences extends BaseEntity {
                 time: 10000
             }
         };
+        this.lastTarget = "English";
+        this.enter = {
+            enterringTranslateType: EnterManageOptions.Ask,
+            generateExampleType: EnterManageOptions.Ask,
+            selectSourceLanguageType: EnterManageOptions.Ask,
+            selectTargetLanguageType: EnterManageOptions.Ask,
+            autoSave: true,
+            searchGlobalBeforeAI: true,
+            searchGlobalBeforeManual: true,
+            model: "gpt-3.5-turbo",
+            firstIntervalReview: 10000
+        }
         await this.save();
         return this
     }

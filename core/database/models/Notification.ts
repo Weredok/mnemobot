@@ -16,7 +16,7 @@ import {
 } from "discord.js";
 import { DiscordClient } from "discord";
 
-enum NotificationType {
+export enum NotificationType {
   DevelopmentLog,
   ReviewTime,
   AFKStatus,
@@ -31,38 +31,89 @@ interface Button {
   name: string;
   id: string;
 }
+
 @Entity()
 export class Notification extends BaseEntity {
+  /** Уникальный айди уведомления */
   @PrimaryGeneratedColumn("uuid")
   uuid: string;
 
+  /** Тип уведомления, от которого зависит поведение функций уведомления */
   @Column("simple-enum", { enum: NotificationType })
   type: NotificationType;
 
-  @Column("boolean")
+  /** Если уведомление активно, то с ним будут взаимодействия типо редактирования или удаления */
+  @Column("boolean", { default: true })
   active: boolean;
 
+  /** Данные уведомления */
   @Column("simple-json")
   data: {
+    /** Айди пользователя */
     userId: number;
-    message: string;
+    /** Текстовое сообщение */
+    message?: string;
+    /**
+     * Кнопки, которые нужно добавлять к сообщению.
+     *
+     * Формат:
+     * [
+     *   { name: string; id: string }
+     * ]
+     *
+     * @example
+     * const buttons: Array<
+     *   { name: string, id: string }
+     * ]> = [
+     *   { name: "placeholder", id: "custom_id" },]
+     */
     buttons?: Array<Button>;
+    /** Время, когда нужно отправить */
     datestamp?: number;
 
+    /** Массив с айди телеграм сообщений с уведомлением, отправленное пользователю */
     telegramMessageIDs?: Array<{ userID: number; messageID: number }>;
+    /** Массив с айди дискорд сообщений с уведомлением, отправленное пользователю */
     discordMessageIDs?: Array<{
       userID: string;
       messageID: string;
       channel_id?: string;
     }>;
 
+    /** Спустя сколько времени нужно удалить сообщения с уведомлениями */
     deleteAfter?: number;
+    /** Спустя сколько времени нужно удалить кнопки с сообщения */
     deleteButtonsAfter?: number;
 
+    /** Спустя сколько времени нужно редактировать сообщения с уведомлениями */
     editAfter?: number;
+    /** Спустя сколько времени нужно редактировать кнопки с сообщения */
     editButtonsAfter?: number;
+    /** Текстовое сообщение, для редактирования */
     editedMessage?: string;
+    /** Кнопки, которые нужно добавлять к сообщению, для редактирования
+     *  @example
+     * const buttons: Array<
+     *   { name: string, id: string }
+     * ]> = [
+     *   { name: "placeholder", id: "custom_id" },]
+     */
     editedButtons?: Array<Button>;
+
+    /**
+     * Определяет, нужно ли выполнять отложенные действия (edit/delete)
+     * повторно, если уведомление уже обновлялось ранее.
+     *
+     * true  — таймеры редактирования и удаления будут запускаться
+     *         каждый раз при вызове send(), независимо от updatedNow.
+     *
+     * false — таймеры будут выполнены только один раз;
+     *         если updatedNow === true, повторный запуск будет заблокирован.
+     *
+     * Используется для защиты от повторных edit/delete при повторной отправке уведомления.
+     */
+    alwaysUpdate: boolean;
+    updatedNow: boolean;
 
     function?: (user: User) => Promise<void>;
   };
@@ -88,13 +139,13 @@ export class Notification extends BaseEntity {
                 reply_markup: rows.telegramKeyboard,
               });
 
-              this.data.telegramMessageIDs.push({
+              this.data.telegramMessageIDs?.push({
                 userID: id,
                 messageID: message.message_id,
               });
             } catch {}
           },
-          this.data.datestamp - Date.now() || 1000
+          this.data.datestamp - Date.now() || 1000,
         );
       }
     }
@@ -124,107 +175,132 @@ export class Notification extends BaseEntity {
             console.log(e);
           }
         },
-        this.data.datestamp - Date.now() || 1000
+        this.data.datestamp - Date.now() || 1000,
       );
     }
 
     if (this.data.function) {
       setTimeout(
         async () => await this.data.function(user),
-        this.data.datestamp - Date.now() || 1000
+        this.data.datestamp - Date.now() || 1000,
       );
     }
 
-    if (this.data.editAfter) {
+    if (
+      this.data.editAfter &&
+      (!this.data.alwaysUpdate
+        ? this.data.alwaysUpdate !== this.data.updatedNow
+        : true)
+    ) {
       await this.executeTimers();
     }
 
-    if (this.data.deleteAfter) {
+    if (
+      this.data.deleteAfter &&
+      (!this.data.alwaysUpdate
+        ? this.data.alwaysUpdate !== this.data.updatedNow
+        : true)
+    ) {
       await this.deleteTimers();
     }
 
     setTimeout(
       async () => {
-        this.active = false;
+        this.active = !this.data.editAfter || !this.data.deleteAfter;
         await this.save();
       },
-      this.data.datestamp - Date.now() || 1000
+      this.data.datestamp - Date.now() || 1000,
     );
+
+    await this.save();
   }
 
   async executeTimers() {
     if (this.data.editAfter) {
       const rows = this.buildButtonsArray(
-        this.data.editedButtons || this.data.buttons
+        this.data.editedButtons || this.data.buttons,
       );
 
       setTimeout(
         async () => {
-          for (const message_data of this.data.telegramMessageIDs) {
-            await TelegramClient.api
-              .editMessageText({
-                text: this.data.editedMessage || this.data.message,
-                chat_id: message_data.userID,
-                message_id: message_data.messageID,
-                parse_mode: "MarkdownV2",
-                disable_web_page_preview: true,
-                reply_markup: rows.telegramKeyboard,
-              })
-              .catch(() => {});
+          if (this.data?.telegramMessageIDs?.length) {
+            for (const message_data of this.data?.telegramMessageIDs || []) {
+              await TelegramClient.api
+                .editMessageText({
+                  text: this.data.editedMessage || this.data.message,
+                  chat_id: message_data.userID,
+                  message_id: message_data.messageID,
+                  parse_mode: "MarkdownV2",
+                  disable_web_page_preview: true,
+                  reply_markup: rows.telegramKeyboard,
+                })
+                .catch(() => {});
+            }
           }
 
-          for (const message_data of this.data.discordMessageIDs) {
-            (
-              await (
-                (await DiscordClient.channels.fetch(
-                  message_data.channel_id
-                )) as DMChannel
-              ).messages.fetch(message_data.messageID)
-            )
-              .edit({
-                content: this.data.editedMessage || this.data.message,
-                components: rows.discordButtons,
-              })
-              .catch(() => {});
+          if (this.data?.discordMessageIDs?.length) {
+            for (const message_data of this.data.discordMessageIDs) {
+              (
+                await (
+                  (await DiscordClient.channels.fetch(
+                    message_data.channel_id,
+                  )) as DMChannel
+                ).messages.fetch(message_data.messageID)
+              )
+                .edit({
+                  content: this.data.editedMessage || this.data.message,
+                  components: rows.discordButtons,
+                })
+                .catch(() => {});
+            }
           }
 
           await this.save();
         },
-        this.data.editAfter + this.data.datestamp - Date.now() || 1000
+        this.data.editAfter + this.data.datestamp - Date.now() || 1000,
       );
     }
   }
 
   async deleteTimers() {
+    console.log(this);
+
     setTimeout(
       async () => {
         this.active = false;
         await this.save();
 
-        for (const message_data of this.data.telegramMessageIDs) {
-          await TelegramClient.api.deleteMessage({
-            chat_id: message_data.userID,
-            message_id: message_data.messageID,
-          });
+        if (this.data?.telegramMessageIDs?.length) {
+          for (const message_data of this.data.telegramMessageIDs) {
+            await TelegramClient.api.deleteMessage({
+              chat_id: message_data.userID,
+              message_id: message_data.messageID,
+            });
+          }
         }
 
-        for (const message_data of this.data.discordMessageIDs) {
-          await (
+        if (this.data?.discordMessageIDs?.length) {
+          for (const message_data of this.data.discordMessageIDs) {
             await (
-              (await DiscordClient.channels.fetch(
-                message_data.channel_id
-              )) as DMChannel
-            ).messages.fetch(message_data.messageID)
-          ).delete();
+              await (
+                (await DiscordClient.channels.fetch(
+                  message_data.channel_id,
+                )) as DMChannel
+              ).messages.fetch(message_data.messageID)
+            ).delete();
+          }
         }
       },
-      this.data.deleteAfter + this.data.datestamp - Date.now() || 1000
+      this.data.deleteAfter + this.data.datestamp - Date.now() || 1000,
     );
   }
 
   buildButtonsArray(data: Array<Button> = this.data.buttons) {
     const telegramKeyboard = new InlineKeyboardBuilder();
-    const discordButtons: ActionRowBuilder<ButtonBuilder>[] = [];
+    const discordButtons: ActionRowBuilder<ButtonBuilder>[] = [
+      new ActionRowBuilder<ButtonBuilder>(),
+    ];
+    const discordButtonsArray: ButtonBuilder[] = [];
 
     for (const button of data || []) {
       telegramKeyboard
@@ -234,14 +310,22 @@ export class Notification extends BaseEntity {
         })
         .row();
 
-      discordButtons.push(
-        new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId(button.id)
-            .setLabel(button.name)
-            .setStyle(ButtonStyle.Secondary)
-        )
+      discordButtonsArray.push(
+        new ButtonBuilder()
+          .setCustomId(button.id)
+          .setLabel(button.name)
+          .setStyle(ButtonStyle.Secondary),
       );
+    }
+
+    for (const button of discordButtonsArray) {
+      if (discordButtons[discordButtons.length - 1].components.length >= 5) {
+        discordButtons.push(
+          new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+        );
+      } else {
+        discordButtons[discordButtons.length - 1].addComponents(button);
+      }
     }
 
     return { telegramKeyboard, discordButtons };
