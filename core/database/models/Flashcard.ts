@@ -76,8 +76,10 @@ class Flashcard extends BaseEntity {
     const preferences = await Preferences.findOneBy({ id: user.id });
     const type = preferences.review.sm2.mode;
     let q: number = 1;
-    let awc: number = user.awcTime;
-    let w: number = t - (awc - p);
+    let awc = Number(user.awcTime);
+    console.log(`typeof awc (User): ${typeof user.awcTime}\ntypeof aws (Number): ${typeof awc}\ntypeof ping (p): ${typeof p}\ntypeof time (t): ${typeof t}`, user);
+    console.log("asw", awc + p, t)
+    let w: number = t - (awc + p);
     let m: number = 4 * (awc + p);
 
     switch (type) {

@@ -72,7 +72,7 @@ export class Spawn extends BaseEntity {
     } else if (Date.now() - this.at >= 1000 * 60 * 60 * 6) {
       await this.ask();
     } else {
-      console.log(this);
+   // r
     }
   }
 
@@ -124,7 +124,7 @@ export class Spawn extends BaseEntity {
   ) {
     await this.initialize();
     if (!this.flashcards.length) await this.findNeedenFlashcards();
-    console.log(this);
+
     const flashcard = this.flashcards[step - 1];
 
     if (!notification) {
@@ -140,7 +140,6 @@ export class Spawn extends BaseEntity {
     const { telegramKeyboard, discordButtons } =
       notification.buildButtonsArray(components);
 
-    console.log(meta.platform === "discord", message instanceof MessageDiscord);
     if (meta.platform === "discord") {
       const user = await DiscordClient.users.fetch(meta.userId as string);
 
@@ -200,7 +199,7 @@ export class Spawn extends BaseEntity {
           } = await flashcard.review(
             isCorrect,
             DiscordClient.ws.ping + pingMsDb,
-            datetime - Date.now(),
+           Date.now() - datetime,
           );
 
           await (message as MessageDiscord).reply({

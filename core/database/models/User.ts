@@ -37,7 +37,7 @@ export class User extends BaseEntity {
     @PrimaryGeneratedColumn("increment")
     id: number;
 
-    @Column("numeric", { default: 7500 })
+    @Column("float", { default: 7500 })
     // Среднее время ответа на карточку с оценкой "5"
     awcTime: number;
 
