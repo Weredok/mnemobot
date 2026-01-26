@@ -96,8 +96,8 @@ export class Spawn extends BaseEntity {
 
     await notification.save();
 
+    notification.uuid = this.uuid
     await notification.send();
-    this.uuid = notification.uuid;
     return notification.uuid;
   }
 

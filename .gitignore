@@ -5,4 +5,5 @@ passtests.ts
 .idea
 .log
 .xml
-**/**/logs
+logs
+**/**/logs/

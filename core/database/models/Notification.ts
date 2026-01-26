@@ -75,8 +75,8 @@ export class Notification extends BaseEntity {
     telegramMessageIDs?: Array<{ userID: number; messageID: number }>;
     /** Массив с айди дискорд сообщений с уведомлением, отправленное пользователю */
     discordMessageIDs?: Array<{
-      userID: string;
-      messageID: string;
+      userID?: string;
+      messageID?: string;
       channel_id?: string;
     }>;
 
@@ -144,8 +144,7 @@ export class Notification extends BaseEntity {
                 messageID: message.message_id,
               });
 
-    await this.save();
-
+              await this.save();
             } catch {}
           },
           this.data.datestamp - Date.now() || 1000,
@@ -157,30 +156,48 @@ export class Notification extends BaseEntity {
       this.data.discordMessageIDs = [];
       const id = user.discordIDS;
       console.log(id);
-      setTimeout(
-        async () => {
-          try {
-            const message = await (
-              await DiscordClient.users.fetch(id)
-            ).send({
-              content: this.data.message,
-              components: rows.discordButtons,
-            });
 
-            this.data.discordMessageIDs.push({
-              userID: id,
-              messageID: message.id,
-              channel_id: message.channel.id,
-            });
-            await this.save();
+      if (this.data.datestamp) {
+        setTimeout(
+          async () => {
+            try {
+              const message = await (
+                await DiscordClient.users.fetch(id)
+              ).send({
+                content: this.data.message,
+                components: rows.discordButtons,
+              });
 
-            console.log(this.data.discordMessageIDs);
-          } catch (e) {
-            console.log(e);
-          }
-        },
-        this.data.datestamp - Date.now() || 1000,
-      );
+              this.data.discordMessageIDs.push({
+                userID: id,
+                messageID: message.id,
+                channel_id: message.channel.id,
+              });
+              await this.save();
+
+              console.log(this.data.discordMessageIDs);
+            } catch (e) {
+              console.log(e);
+            }
+          },
+          this.data.datestamp - Date.now() || 1000,
+        );
+      } else {
+        const message = await (
+          await DiscordClient.users.fetch(id)
+        ).send({
+          content: this.data.message,
+          components: rows.discordButtons,
+        });
+
+        this.data.discordMessageIDs.push({
+          userID: id,
+          messageID: message.id,
+          channel_id: message.channel.id,
+        });
+        await this.save();
+        console.log(this.data.discordMessageIDs);
+      }
     }
 
     if (this.data.function) {
@@ -208,18 +225,24 @@ export class Notification extends BaseEntity {
       await this.deleteTimers();
     }
 
-    setTimeout(
-      async () => {
-        this.active = !this.data.editAfter || !this.data.deleteAfter;
-        await this.save();
-      },
-      this.data.datestamp - Date.now() || 1000,
-    );
+    if (this.data.editAfter) {
+      setTimeout(
+        async () => {
+          this.active = !this.data.editAfter || !this.data.deleteAfter;
+          await this.save();
+        },
+        this.data.datestamp - Date.now() || 1000,
+      );
+    } else {
+      this.active = !this.data.editAfter || !this.data.deleteAfter;
+    }
 
-    await this.save();
+    console.log(this);
   }
 
   async executeTimers() {
+   this.data = (await Notification.findOneBy({ uuid: this.uuid })).data;
+
     if (this.data.editAfter) {
       const rows = this.buildButtonsArray(
         this.data.editedButtons || this.data.buttons,
@@ -267,8 +290,8 @@ export class Notification extends BaseEntity {
   }
 
   async deleteTimers() {
-    console.log(this);
-
+   this.data = (await Notification.findOneBy({ uuid: this.uuid })).data;
+    console.log(this.data, "deleteTimers");
     setTimeout(
       async () => {
         this.active = false;
