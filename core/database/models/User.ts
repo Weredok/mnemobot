@@ -89,4 +89,14 @@ export class User extends BaseEntity {
     
     @Column("boolean", { default: false })
     reviewing: boolean
+
+    @Column("text", { nullable: false, default: "0" })
+    password: string
+
+    @Column("text", { nullable: true })
+    name: string
+
+    async askForSignUp(){
+        // unreleased rn
+    }
 }

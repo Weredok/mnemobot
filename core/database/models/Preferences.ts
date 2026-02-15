@@ -124,9 +124,9 @@ class Preferences extends BaseEntity {
     // При поиске в глобальной базе данных данные пользовтеля будут скрыты
     anonymous: boolean;
 
-    async init(user: User) {
-        this.id = user.id
-        this.language = user.languages[0];
+    async init(user?: User, save = true) {
+        this.id = user?.id || 29929292
+        this.language = user ? user?.languages[0] :  "English";
         this.dictionaryFilters = {
             frequency: false,
             dateOfCreation: false,
@@ -164,7 +164,7 @@ class Preferences extends BaseEntity {
             model: "gpt-3.5-turbo",
             firstIntervalReview: 10000
         }
-        await this.save();
+        if(user) await this.save();
         return this
     }
 }
