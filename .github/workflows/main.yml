@@ -1,0 +1,53 @@
+name: Dev Release
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      tag_suffix:
+        description: 'Tag Suffix'
+        required: false
+        default: 'manual'
+
+jobs:
+  dev-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Tag and Title
+        id: meta
+        run: |
+          DATE=$(date +'%Y.%m.%d')
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            TAG="nightly-${DATE}-${SHORT_SHA}"
+            TITLE="Nightly Build [${DATE}]"
+          else
+            SUFFIX="${{ inputs.tag_suffix }}"
+            TAG="dev-${DATE}-${SUFFIX}-${SHORT_SHA}"
+            TITLE="Dev Build: ${SUFFIX}"
+          fi
+          
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "title=${TITLE}" >> $GITHUB_OUTPUT
+
+      - name: Build Project
+        run: |
+          echo "version=${{ steps.meta.outputs.tag }}" > build_info.txt
+          zip release.zip build_info.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.title }}
+          files: release.zip
+          prerelease: true
+          make_latest: false
