@@ -1,14 +1,13 @@
 name: Dev Release
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
+  push:
   workflow_dispatch:
     inputs:
       tag_suffix:
         description: 'Tag Suffix'
         required: false
-        default: 'manual'
+        default: ''
 
 jobs:
   dev-release:
@@ -25,16 +24,11 @@ jobs:
         run: |
           DATE=$(date +'%Y.%m.%d')
           SHORT_SHA=$(git rev-parse --short HEAD)
-          
-          if [ "${{ github.event_name }}" == "schedule" ]; then
-            TAG="nightly-${DATE}-${SHORT_SHA}"
-            TITLE="Nightly Build [${DATE}]"
-          else
+
             SUFFIX="${{ inputs.tag_suffix }}"
-            TAG="dev-${DATE}-${SUFFIX}-${SHORT_SHA}"
-            TITLE="Dev Build: ${SUFFIX}"
-          fi
-          
+            TAG="dev-${DATE}-${SHORT_SHA}"
+            TITLE="Dev Build"
+        
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "title=${TITLE}" >> $GITHUB_OUTPUT
 
