@@ -294,6 +294,7 @@ export class Notification extends BaseEntity {
     console.log(this.data, "deleteTimers");
     setTimeout(
       async () => {
+        try {
         this.active = false;
         await this.save();
 
@@ -317,6 +318,9 @@ export class Notification extends BaseEntity {
             ).delete();
           }
         }
+      } catch (e) {
+        console.log(e);
+      }
       },
       this.data.deleteAfter + this.data.datestamp - Date.now() || 1000,
     );

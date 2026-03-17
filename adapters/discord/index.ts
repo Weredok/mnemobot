@@ -16,6 +16,7 @@ import {
   DMChannel,
   EmbedBuilder,
   ModalBuilder,
+  Partials,
   TextChannel,
   TextInputBuilder,
   TextInputStyle,
@@ -32,6 +33,10 @@ import { Registration } from "core/services/Registration.ts";
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
+  partials: [
+        Partials.Channel, 
+        Partials.Message 
+    ]
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -163,6 +168,9 @@ client.on("interactionCreate", async (interaction) => {
               switch (
                 name as
                   | "settings"
+                  | "spawn"
+                  | "history"
+                  | "feedback"
                   | "dictionary"
                   | "create"
                   | "interactive"
@@ -179,6 +187,30 @@ client.on("interactionCreate", async (interaction) => {
                   | "previous"
                   | "next"
               ) {
+                case "spawn": {
+                  const notification = new Notification();
+                    notification.type = NotificationType.ReviewTime;
+                    notification.data = {
+                      userId: user.id,
+                      message: "Testify notification",
+                      alwaysUpdate: false,
+                      updatedNow: false,
+                    };
+                  
+                    await notification.save();
+                  
+                    const spawn = new Spawn();
+                    spawn.uuid = notification.uuid
+                    spawn.at = Date.now();
+                    spawn.during = 1000 * 60 * 60 * 6;
+                    spawn.flashcardIds = [];
+                    spawn.platform = "discord";
+                    spawn.userId = user.id;
+                    await spawn.initialize()
+                    await spawn.save();
+                    await spawn.ask();
+                  break
+                };
                 case "dictionary": {
                   await defer(interaction);
 
@@ -238,10 +270,6 @@ client.on("interactionCreate", async (interaction) => {
                   });
                   break;
                 }
-
-                case "sets":
-                  break;
-
                 case "language": {
                   if (!data) {
                     const components: ActionRowBuilder<ButtonBuilder>[] = [];
@@ -342,14 +370,17 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("messageCreate", async (message) => {
+  console.log(message.content)
   if (message.author.bot) return;
   if (!message.content) return;
   switch (message.content) {
     default:
       const user = await User.findOneBy({ discordIDS: message.author.id });
+      console.log(user.reviewing)
       if (user.reviewing) return;
       const preferences = await Preferences.findOneBy({ id: user.id });
 
+      console.log(user.lastAwaited + preferences.idleTimeout > Date.now())
       if (user.lastAwaited + preferences.idleTimeout > Date.now()) return;
 
       const iWord = new WordInteraction(user, message.channel as DMChannel);

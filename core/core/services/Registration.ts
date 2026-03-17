@@ -19,6 +19,8 @@ import {
   User,
 } from "discord.js";
 import { renewal } from "../ai/Renewal.ts";
+import { Log } from "database/models/Log.ts";
+import { text } from "../../languages/index.ts";
 
 export class Registration {
   /** Айди пользователя */
@@ -79,33 +81,47 @@ export class Registration {
   }
 
   async step(num: number, data?: string, interaction?: Interaction) {
-
-    if(interaction?.type === InteractionType.ApplicationCommandAutocomplete) return ;
+    if (interaction?.type === InteractionType.ApplicationCommandAutocomplete)
+      return;
 
     if (this.meta.platform === "discord") {
+      const logger = new Log();
+
+      logger.type = "info";
+      logger.author = {
+        id: 100000000000,
+        username: interaction?.user.username,
+        iconURL: interaction?.user.avatarURL(),
+      };
       let user = await DiscordClient.users.fetch(this.meta.userId as string);
 
-      
-      
-      
       switch (num) {
         case 1:
-          await interaction.followUp(`Инициализация...`);
-          console.log(this)
+          logger.systemMessage = JSON.stringify(this, (key, value) => {
+            if (typeof value === "bigint") {
+              return value.toString(); 
+            }
+            return value; 
+          });
+          await interaction.followUp(text("registration.initializing", this.interfaceLanguage));
+          console.log(this);
           const message_ = await interaction?.editReply({
-            content: `Выберите языки, с которыми будете работать с помощью этого бота.`,
+            content: text("registration.select_languages", this.interfaceLanguage),
             components: [
               new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                   .setCustomId("regstatlang")
-                  .setLabel("Выбрать")
+                  .setLabel(text("registration.select_button", this.interfaceLanguage))
                   .setStyle(ButtonStyle.Success),
               ),
             ],
           });
 
-          await message_.
-            awaitMessageComponent({
+          logger.message = `User ${interaction?.user.id} started registration`;
+          await logger.send();
+
+          await message_
+            .awaitMessageComponent({
               componentType: ComponentType.Button,
               time: 300000,
             })
@@ -113,12 +129,12 @@ export class Registration {
               await interaction.showModal(
                 new ModalBuilder()
                   .setCustomId("regstatlangm")
-                  .setTitle("Выберите языки для взаимодействий")
+                  .setTitle(text("registration.select_languages", this.interfaceLanguage))
                   .addComponents(
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("main")
-                        .setLabel("Родной язык")
+                        .setLabel(text("registration.main_language", this.interfaceLanguage))
                         .setStyle(TextInputStyle.Short)
                         .setPlaceholder("English")
                         .setRequired(true)
@@ -128,9 +144,12 @@ export class Registration {
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("languages")
-                        .setLabel("Языки, которые вы хотите изучать")
+                        .setLabel(text("registration.target_languages", this.interfaceLanguage))
                         .setPlaceholder(
-                          "Через запятую. Например: Английский, французский, румынский",
+                          text(
+                            "registration.target_languages_by_a_comma",
+                            this.interfaceLanguage,
+                          ),
                         )
                         .setStyle(TextInputStyle.Short)
                         .setStyle(TextInputStyle.Short)
@@ -144,6 +163,7 @@ export class Registration {
               await interaction
                 .awaitModalSubmit({ time: 300000 })
                 .then(async (modalsubmit) => {
+                  await logger.send();
                   // await interaction.deferReply({ ephemeral: true });
                   // const message =await interaction.followUp({
                   //   content: ":white_check_mark:",
@@ -151,7 +171,7 @@ export class Registration {
 
                   // await message.delete();
 
-                  await modalsubmit.deferUpdate()
+                  await modalsubmit.deferUpdate();
 
                   await this.step(
                     2,
@@ -165,7 +185,10 @@ export class Registration {
           break;
 
         case 2:
-          console.log(data)
+          logger.systemMessage = data;
+          logger.message = `User ${interaction?.user.id} at 2 step of registration`;
+          await logger.send();
+          console.log(data);
           this.interfaceLanguage = data.split(" | ")[0];
           this.languages = [{ name: this.interfaceLanguage, knowing: CEFR.C2 }];
           this.languages.push(
@@ -178,14 +201,14 @@ export class Registration {
               }),
           );
 
-         const message__  =  await interaction.editReply({
+          const message__ = await interaction.editReply({
             content:
-              "Теперь приступим к созданию аккаунта в боте.\n\nПароль - можно оставлять сгенерированным, вы его можете позже запросить и скопировать. Каждый вход в аккаунт нужно будет подтверждать примерно так, как в Telegram - на ваши аккаунты в Discord/Telegram будут приходить коды для логина. В случае потери доступа к аккаунтам в Discord/Telegram - вы будете вводить этот пароль.\n\nАнонимность - система не будет раскрывать ваши личные данные (имя пользователя, аватарка в Discord/Telegram, айди) другим пользователям, например, при поиске существующих переводов в базе данных.",
+              text("registration.login_step_longread", this.interfaceLanguage),
             components: [
               new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                   .setCustomId("signup")
-                  .setLabel("Зарегистрироваться")
+                  .setLabel(text("registration.title", this.interfaceLanguage))
                   .setStyle(ButtonStyle.Primary),
               ),
             ],
@@ -197,12 +220,12 @@ export class Registration {
               await collected.showModal(
                 new ModalBuilder()
                   .setCustomId("reglog")
-                  .setTitle("Создание нового аккаунта")
+                  .setTitle(text("registration.title", this.interfaceLanguage))
                   .addComponents(
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("username")
-                        .setLabel("Имя пользователя")
+                        .setLabel(text("registration.username", this.interfaceLanguage))
                         .setValue(user?.username?.trim())
                         .setRequired(true)
                         .setMinLength(5)
@@ -212,7 +235,7 @@ export class Registration {
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("password")
-                        .setLabel("Пароль для входа")
+                        .setLabel(text("registration.password", this.interfaceLanguage))
                         .setRequired(true)
                         .setStyle(TextInputStyle.Short)
                         .setMinLength(8)
@@ -226,10 +249,10 @@ export class Registration {
                     ),
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
-                        .setLabel("Анонимность")
+                        .setLabel(text("registration.anonymous", this.interfaceLanguage))
                         .setCustomId("anonymous")
                         .setPlaceholder(
-                          "Оставьте поле пустым, если хотите оставаться анонимным",
+                          text("registration.anon_disclaimer", this.interfaceLanguage),
                         )
                         .setRequired(false)
                         .setStyle(TextInputStyle.Short),
@@ -240,7 +263,7 @@ export class Registration {
               await collected
                 .awaitModalSubmit({ time: 120000 })
                 .then(async (intr) => {
-                  await intr.deferUpdate()
+                  await intr.deferUpdate();
                   await this.step(
                     3,
                     intr.fields.getTextInputValue("username") +
@@ -255,6 +278,9 @@ export class Registration {
           break;
 
         case 3:
+          logger.systemMessage = data;
+          logger.message = `User ${interaction?.user.id} at 3 step of registration`;
+          await logger.send();
           this.username = data.split(" ||| ")[0];
           this.password = data.split(" ||| ")[1];
           this.anonymous = Boolean(data.split(" ||| "));
@@ -291,6 +317,10 @@ export class Registration {
         case 4:
           this.preferences = new Preferences();
           await this.preferences.init();
+
+          logger.systemMessage = JSON.stringify(this.preferences);
+          logger.message = `User ${interaction?.user.id} at 4 step of registration`;
+          await logger.send();
           const embeds = [
             new EmbedBuilder()
               .setColor("NotQuiteBlack")
@@ -375,6 +405,10 @@ export class Registration {
                 components: [],
                 embeds: [],
               });
+
+              logger.systemMessage = JSON.stringify(usr);
+              logger.message = `User ${interaction?.user.id} at 4 step of registration and finished it\n\n`;
+              await logger.send();
             });
           break;
       }

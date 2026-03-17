@@ -1,0 +1,16 @@
+{
+    "registration": {
+        "title": "Registration",
+        "initializing": "Initializing...",
+        "select_languages": "Select languages, with which you will work with this bot.",
+        "select_button": "Select",
+        "main_language": "Your main language",
+        "target_languages": "Target languages",
+        "target_languages_by_a_comma": "Target languages, separated by a comma. Example: English, French, Romanian",
+        "login_step_longread": "Now let's create an account in the bot.\n\nPassword - you can leave the generated one; you can request it later and copy it. Each login will require confirmation, similar to Telegram - login codes will be sent to your Discord/Telegram accounts. If you lose access to your Discord/Telegram accounts, you will enter this password.\n\nAnonymity - the system will not disclose your personal information (username, Discord/Telegram avatar, ID) to other users, for example, when searching for existing translations in the database.",
+        "username": "Username",
+        "password": "Password",
+        "anonymous": "Anonymity",
+        "anon_disclaimer": "Left this field unchecked if you don't want to share your information with other users of the bot."
+    }
+}

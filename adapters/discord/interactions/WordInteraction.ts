@@ -142,12 +142,12 @@ export class WordInteraction extends BaseInteraction {
       return;
     }
 
-    const secondTranslateLanguage = [
-      this.dictionary.language.source,
-      this.dictionary.language.target,
-    ].find(
-      (lang) => !detectedLanguages.includes(lang.slice(0, 2).toLowerCase())
-    );
+    // const secondTranslateLanguage = [
+    //   this.dictionary.language.source,
+    //   this.dictionary.language.target,
+    // ].find(
+    //   (lang) => !detectedLanguages.includes(lang.slice(0, 2).toLowerCase())
+    // );
 
     if (
       !this.dictionary.preferences.enter.selectSourceLanguageType &&

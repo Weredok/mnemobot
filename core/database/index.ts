@@ -10,7 +10,7 @@ import { Preferences } from "./models/Preferences.ts";
 import { config } from "dotenv";
 import fs from "fs";    
 import { Dictionary } from "core";
-import { Notification } from "./models/Notification.ts";
+import { Notification, NotificationType } from "./models/Notification.ts";
 import { Spawn } from "./models/Spawn.ts";
 config({ path: "./../../.env" });
 
@@ -25,17 +25,8 @@ const datasource = new DataSource({
 });
 
 
-
-User.useDataSource(datasource);
-Set.useDataSource(datasource);
-Flashcard.useDataSource(datasource);
-Session.useDataSource(datasource);
-Folder.useDataSource(datasource);
-Log.useDataSource(datasource);
-Preferences.useDataSource(datasource);
-
 await datasource.initialize().then((ds) => { console.log(`[${new Date().toLocaleString()}]: База данных ${ds.options.type} успешно подключена`) })
 export { datasource }
-export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification, Spawn }
+export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification, NotificationType,Spawn }
 export type { AiUsageQuota, AiUsageRecord } from "./models/User.ts";
 export type { ResponseInfo }

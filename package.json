@@ -1,6 +1,6 @@
 {
   "name": "mnemo",
-  "version": "1.0.0",
+  "version": "1.0.0-test",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "jest-cli": "^30.0.2",
     "openai": "^5.13.1",
     "pg": "^8.11.3",
+    "pm2": "^6.0.14",
     "prettier": "^3.5.3",
     "puregram": "^2.26.8",
     "sql.js": "^1.13.0",
