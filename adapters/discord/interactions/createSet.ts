@@ -1,16 +1,17 @@
 import { defer, Dictionary } from "core";
 import { ButtonInteraction, ChatInputCommandInteraction, ActionRowBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, EmbedBuilder, ComponentType } from "discord.js";
 import { createWord } from "./createWord.ts";
+import { text } from "../../../core/languages/index.ts";
 
 export async function createSet(interaction: ButtonInteraction | ChatInputCommandInteraction, dictionary: Dictionary, name: string) {
     await interaction.showModal({
         customId: "set:creator",
-        title: `Создание набора в словаре ${dictionary.language}`,
+        title: `${text("create_set.title", dictionary.language.target)} ${dictionary.language}`,
         components: [
             new ActionRowBuilder<TextInputBuilder>().addComponents(
                 new TextInputBuilder()
                     .setCustomId("name")
-                    .setLabel("Название набора")
+                    .setLabel(text("create_set.name", dictionary.language.target))
                     .setStyle(TextInputStyle.Short)
                     .setRequired(true)
             )
@@ -25,8 +26,8 @@ export async function createSet(interaction: ButtonInteraction | ChatInputComman
         dictionary.addSet(name);
         console.log(dictionary)
         await dictionary.syncronize(true).catch(console.error);
-        await i.followUp(`Набор \`${name}\` успешно создан!`);
-        const message = await interaction.editReply({ components: [new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setCustomId("word:create").setLabel("Начать").setStyle(ButtonStyle.Success))], embeds: [new EmbedBuilder().setTitle("Настройка нового языка").setDescription("А теперь создайте первое слово в вашем новом словаре").setTimestamp()] });
+        await i.followUp(text("create_set.successful", dictionary.language.target).replace("{name}", name));
+        const message = await interaction.editReply({ components: [new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setCustomId("word:create").setLabel(text("create_set.button_create", dictionary.language.target)).setStyle(ButtonStyle.Success))], embeds: [new EmbedBuilder().setTitle(text("create_set.setting_up", dictionary.language.target)).setDescription(text("create_set.create_word_via_set", dictionary.language.target)).setTimestamp()] });
 
         const collector = message.createMessageComponentCollector({
             componentType: ComponentType.Button,

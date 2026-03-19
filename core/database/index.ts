@@ -16,7 +16,7 @@ config({ path: "./../../.env" });
 
 const datasource = new DataSource({
     type: "postgres",
-    url: "postgres://pterodactyl:0NNR7H985JIZBFK2@dono-01.danbot.host:9474/postgres",
+    url: "postgres://postgres:supersecretpassword@localhost:5432",
     // type: "better-sqlite3",
     // database: "db.sql",
     dropSchema: true,

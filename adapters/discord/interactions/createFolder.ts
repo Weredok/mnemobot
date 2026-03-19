@@ -1,15 +1,16 @@
 import { defer, Dictionary } from "core";
 import { ModalSubmitInteraction, ButtonInteraction, ChatInputCommandInteraction, ActionRowBuilder, TextInputBuilder, TextInputStyle, ActionRow, ButtonStyle, ButtonBuilder } from "discord.js";
+import { text } from "../../../core/languages/index.ts";
 
 export async function createFolder(interaction: ButtonInteraction | ChatInputCommandInteraction, dictionary: Dictionary) {
     await interaction.showModal({
         customId: "folder:creator",
-        title: `Создание папки в словаре ${dictionary.language}`,
+        title: `${text("create_folder.title", dictionary.language.target)} ${dictionary.language}`,
         components: [
             new ActionRowBuilder<TextInputBuilder>().addComponents(
                 new TextInputBuilder()
                     .setCustomId("name")
-                    .setLabel("Название папки")
+                    .setLabel(text("create_folder.name", dictionary.language.target))
                     .setStyle(TextInputStyle.Short)
                     .setRequired(true)
             )
@@ -23,7 +24,7 @@ export async function createFolder(interaction: ButtonInteraction | ChatInputCom
         const name = i.fields.getTextInputValue("name");
         dictionary.addFolder(name);
         await dictionary.syncronize(true);
-        await i.followUp(`Папка ${name} успешно создана`);
-        await i.editReply({ components: [new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setCustomId("set:create").setLabel("Создать набор").setStyle(ButtonStyle.Primary))] });
+        await i.followUp(text("create_folder.successful", dictionary.language.target).replace("{name}", name));
+        await i.editReply({ components: [new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setCustomId("set:create").setLabel(text("create_set.title", dictionary.language.target)).setStyle(ButtonStyle.Primary))] });
     });
 }

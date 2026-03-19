@@ -18,17 +18,19 @@ import { DeveloperSelectedAiTargets } from "core/ai/Readme.ts";
 import { getCurrentQuota } from "core/ai/Renewal.ts";
 import { TelegramClient } from "telegram";
 import { createHash } from "node:crypto";
+import { text } from "../../../core/languages/index.ts";
 
 export class WordInteraction extends BaseInteraction {
   word: Flashcard;
 
   constructor(
     user: User,
+    languageCode: string,
     channel: DMChannel,
     word?: Flashcard,
     dictionary?: Dictionary
   ) {
-    super(user, channel, dictionary);
+    super(user, languageCode, channel, dictionary);
     this.word = word;
   }
 
@@ -106,7 +108,7 @@ export class WordInteraction extends BaseInteraction {
         .setURL("https://discord.com")
         .setTitle(`${flValues.front} (${this.dictionary.language.target})`)
         .setDescription(
-          `${isAI ? "ИИ внёс" : "Вы внесли"} ${isArray ? "слова" : "слово"} *${flValues.front}* в свой словарь \`${this.dictionary.language.source} -> ${this.dictionary.language.target}\``
+          `${isAI ? text("word_interaction.ai_entered", this.languageCode) : text("word_interaction.you_entered", this.languageCode)} ${text("word_interaction.an_word", this.languageCode)} *${flValues.front}* \`${this.dictionary.language.source} -> ${this.dictionary.language.target}\``
         )
         .setFooter({
           text: message.client.user.username,

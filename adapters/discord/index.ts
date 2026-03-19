@@ -30,6 +30,7 @@ import { WordInteraction } from "./interactions/WordInteraction.ts";
 import { NotificationType } from "database/models/Notification.ts";
 import { renewal } from "core/ai/Renewal.ts";
 import { Registration } from "core/services/Registration.ts";
+import { text } from "../../core/languages/index.ts";
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
@@ -87,23 +88,23 @@ client.on("interactionCreate", async (interaction) => {
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
               .setCustomId("settings")
-              .setLabel("Настройки")
+              .setLabel(text("buttons_reference.settings", "en"))
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
               .setCustomId("dictionary")
-              .setLabel("Словарь")
+              .setLabel(text("buttons_reference.dictionary", "en"))
               .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
               .setCustomId("history")
-              .setLabel("История")
+              .setLabel(text("buttons_reference.history", "en"))
               .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
               .setCustomId("feedback")
-              .setLabel("Обратная связь")
+              .setLabel(text("buttons_reference.feedback", "en"))
               .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
               .setCustomId("spawn")
-              .setLabel("Спавн")
+              .setLabel(text("buttons_reference.spawn", "en"))
               .setStyle(ButtonStyle.Secondary),
           ),
         ];
@@ -115,10 +116,10 @@ client.on("interactionCreate", async (interaction) => {
               name: interaction.user.username,
               iconURL: interaction.user.avatarURL() || "",
             })
-            .setTitle(`С возвращением, ${user.name}`)
-            .setDescription(`надо будет придумать, что здесь писать`)
+            .setTitle(`${text("main_menu.welcome", "en")} ${user.name}`)
+            .setDescription("descr not tested")
             .setFooter({
-              text: `Версия бота: ${process.env.version} | Спасибо за участие в альфа-тестировании! <3`,
+              text: `${text("main_menu.bot_version", "en")} ${process.env.version} | ${text("alpha_test.thanks", "en")}`,
               iconURL:
                 "https://avatars.githubusercontent.com/u/230691002?u=34515c5df7da83f2bc3c87b87a81a9880b677945&v=4&size=80",
             })
@@ -232,7 +233,7 @@ client.on("interactionCreate", async (interaction) => {
                     components: dictionary.buildButtonsUtil(),
                     embeds: [
                       embed.setDescription(
-                        `**Фильтры настраиваиваются по нажатию на нужный вам параметр. \nЕсли кнопка с нужным параметром серая - значит, параметр никак не влияет на фильтр\nЕсли кнопка синяя - значит параметр считается от высшего его значения\nЕсли кнопка красная - хначит параметр считается от нижнего его значения**\nПример работы фильтра \`Частотность\` (сколько раз слово повторялось ранее)\n\n*1. Серая кнопка - \`частотность\` никак не влияет на фильтр в словаре\n2. Синяя кнопка - будут отображаться слова от высшей \`частотности\` до низшей\n3.  Красная кнопка - будут отображаться слова от низшей \`частотности\` до высшей*\n`,
+                        text("main_menu.filter.doc",preferences.interfaceLanguage)
                       ),
                     ],
                   });
@@ -275,14 +276,14 @@ client.on("interactionCreate", async (interaction) => {
                     const components: ActionRowBuilder<ButtonBuilder>[] = [];
                     const embeds = [
                       new EmbedBuilder().setTitle(
-                        "Выберите язык, с которым хотите работать сейчас",
+                        text("language_switch.title", preferences.interfaceLanguage)
                       ),
                     ];
                     let row =
                       new ActionRowBuilder<ButtonBuilder>().addComponents(
                         new ButtonBuilder()
                           .setCustomId(`language:create:noneed`)
-                          .setLabel("Создать")
+                          .setLabel(text("main_menu.language_switch.button_create", preferences.interfaceLanguage))
                           .setStyle(ButtonStyle.Primary),
                       );
 
@@ -297,7 +298,7 @@ client.on("interactionCreate", async (interaction) => {
                       );
                       embeds[0].addFields({
                         name: dictionary.user.languages[i],
-                        value: `Словарь на n (в будущем доделаю) слов`,
+                        value: text("main_menu.language_switch.dictionary_description", preferences.interfaceLanguage),
                       });
                       if (
                         row.components.length === 5 ||
@@ -316,12 +317,12 @@ client.on("interactionCreate", async (interaction) => {
                     await interaction.showModal(
                       new ModalBuilder()
                         .setCustomId(`dictionary:newlanguage`)
-                        .setTitle("Выбор нового языка для изучения")
+                        .setTitle(text("main_menu.language_switch.create_new_language", preferences.interfaceLanguage))
                         .addComponents(
                           new ActionRowBuilder<TextInputBuilder>().addComponents(
                             new TextInputBuilder()
                               .setCustomId("language")
-                              .setLabel("Название языка")
+                              .setLabel(text("main_menu.language_switch.name_language", preferences.interfaceLanguage))
                               .setStyle(TextInputStyle.Short)
                               .setRequired(true)
                               .setMinLength(5)

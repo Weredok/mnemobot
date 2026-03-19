@@ -3,29 +3,27 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatIn
 import { createFolder } from "./createFolder.ts";
 import { createSet } from "./createSet.ts";
 import { Preferences, User } from "database";
+import { text } from "../../../core/languages/index.ts";
 
 export async function setupNewLanguage(interaction: ModalSubmitInteraction | ButtonInteraction | ChatInputCommandInteraction, language: string) {
     await defer(interaction);
-    dictionary = new Dictionary();
-    dictionary.userId = (await (await User.findOneBy({ discordIDS: interaction.user.id })).id)
+    // hz need fix
+    // const dictionary = new Dictionary({
+    //     userId: (await (await User.findOneBy({ discordIDS: interaction.user.id })).id),
+    //     language: {
+    //         source: language,
+    //         target: await Preferences.findOneBy({ id: dictionary.userId }).then(preferences => preferences.interfaceLanguage),
+    //         name: `${language} - ${await Preferences.findOneBy({ id: dictionary.userId }).then(preferences => preferences.interfaceLanguage)}`
 
-
-    dictionary.language = {
-        source: language,
-        target: await Preferences.findOneBy({ id: dictionary.userId }).then(preferences => preferences.interfaceLanguage),
-        name: `${language} - ${await Preferences.findOneBy({ id: dictionary.userId }).then(preferences => preferences.interfaceLanguage)}`
-
-    }
-    dictionary.folders = [];
-    dictionary.sets = [];
-    dictionary.flashcards = [];
+    //     }, folderIds: [], flashcardIds: [], setIds: [], folders: [], sets: [], flashcards: [], user: undefined, preferences: undefined
+    // });
     const components = [new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId("set:create").setLabel("Создать набор").setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId("set:create").setLabel(text("create_set.title", "en")).setStyle(ButtonStyle.Primary),
     )
     ];
 
     const embeds = [
-        new EmbedBuilder().setTitle("Настройка нового языка").setDescription("Как назовём первый набор слов в новом словаре?").setTimestamp()
+        new EmbedBuilder().setTitle(text("create_set.title", "en")).setDescription(text("create_Set.name_first_set", "en")).setTimestamp()
     ];
 
     const message = await interaction.followUp({ embeds, components });

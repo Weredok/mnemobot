@@ -12,5 +12,86 @@
         "password": "Password",
         "anonymous": "Anonymity",
         "anon_disclaimer": "Left this field unchecked if you don't want to share your information with other users of the bot."
+    },
+    "buttons_reference": {
+        "settings": "Settings",
+        "dictionary": "Dictionary",
+        "history": "History",
+        "feedback": "Feedback",
+        "spawn": "Spawn"
+    },
+    "main_menu": {
+        "welcome": "Welcome, ",
+        "bot_version": "Version:",
+        "filter": {
+            "doc": "not tested, ask for dev"
+        },
+        "language_switch": {
+            "title": "Select language, with which you want interact now",
+            "button_create": "Create",
+            "dictionary_description": "Dictionary has {count} words",
+            "create_new_language": "Create new language",
+            "name_language": "Language name"
+        },
+        "alpha_test": {
+            "thanks": "Thanks for contribution on alpha program! <3"
+        }
+    },
+    "base_interaction": {
+        "quota_end": "You're out of your qouta usage limit. Ask new for dev.",
+        "error_detection_languages": "Error parameters by massloading words. Asked words was detected as different languages"
+    },
+    "create_folder": {
+        "title": "Create folder in dictionary",
+        "name": "Folder name",
+        "successful": "Folder {name} successfully created."
+    },
+    "create_set": {
+        "title": "Create set in dictionary",
+        "name": "Set name",
+        "successful": "Set {name} successfully created",
+        "setting_up": "Setting up newly language",
+        "create_word_via_set": "Let's add first word",
+        "button_create": "Go",
+        "name_first_set": "How we will name first set in this dictionary?"
+    },
+    "create_word": {
+        "title": "Create an word in dictionary",
+        "on_source": "Write word in a source language",
+        "on_target": "Write word translation for ",
+        "successful": "Word {arr} was successfully added to dictionary",
+        "go_to_main_menu": "Go to main menu"
+    },
+    "review_word": {
+        "predictions": {
+            "85": "You remember this word well, as the last review was ",
+            "70": "You will have to make an effort to remember this word, as the last review was ",
+            "50": "You might not remember this word anymore unless you've encountered it somewhere else or made special associations with it. The last review was ",
+            "default": "Most likely, you have forgotten this word. The last review was "
+        },
+        "title": "Reviewing word from dictionary",
+        "last_review": "Last review for this word was",
+        "did_you": "Did you remember translation for",
+        "known": "Known",
+        "knownt": "Known't",
+        "skip": "Skip",
+        "mode": "Mode",
+        "modes": {
+            "manual": "Manual",
+            "auto": "Auto"
+        },
+        "answer": "Answer",
+        "answers": {
+            "button": "Button",
+            "writting": "Writting",
+            "none": "none"
+        },
+        "side": "Side:",
+        "end_session": "End session"
+    }, 
+    "word_interaction": {
+        "ai_entered": "AI entered",
+        "you_entered": "You entered",
+        "an_word": "an word(s) in your dictionary"
     }
 }

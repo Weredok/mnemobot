@@ -1,6 +1,7 @@
 import { Dictionary } from "core";
 import { Flashcard, Preferences, Session, User, Set} from "database";
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder } from "discord.js";
+import { text } from "../../../core/languages/index.ts";
 
 export class reviewWord {
     flashcard: Flashcard;
@@ -36,17 +37,17 @@ export class reviewWord {
         this.set = this.dictionary.sets.find(set => set.id === this.flashcard.set);
         let prediction: string;
         if(this.flashcard.strength >= 0.85){
-            prediction = `Вы хорошо помните это слово, поскольку последнее повторение было <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>`
+            prediction = `${text("review_word.predictions.85", this.dictionary.language.target)} <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>`
         } else if (this.flashcard.strength >= 0.7){
-            prediction = `Чтобы вспомнить это слово вам придётся поднапрячься, поскольку последнее повторение было <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>`
+            prediction = `${text("review_word.predictions.70", this.dictionary.language.target)} <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>`
         } else if (this.flashcard.strength >= 0.5){
-            prediction = "Возможно, вы уже не помните это слово, если не встречали его где-либо или не делали особых ассоциаций с ним. Последнее повторение было <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>"
+            prediction = `${text("review_word.predictions.50", this.dictionary.language.target)} <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>`
         } else {
-            prediction = "Вероятнее всего это слово было вами забыто. Последнее повторение было <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>"
+            prediction = `${text("review_word.predictions.default", this.dictionary.language.target)} <t:${Math.round(this.flashcard.lastReviewed / 1000)}:R>`
         }
 
         const embeds: EmbedBuilder[] = [
-            new EmbedBuilder().setAuthor({ name: this.interaction.user.username, iconURL: this.interaction.user.displayAvatarURL() }).setTitle(`Повторение слов из словаря ${this.dictionary.language} (${this.dictionary.preferences.review.side}-side)`).setURL("https://discord.com").setFooter({ text: `Версия бота: ${process.env.version} ${this.flashcard.lastReviewed ? ` | Последний раз это слово было повторено` : ""}`, iconURL: this.interaction.client.user.displayAvatarURL() }).setTimestamp(this.flashcard.lastReviewed || new Date()).setDescription(`Помните ли вы перевод слова __**${this.flashcard[this.dictionary.preferences.review.side]}**__?\n\n*${prediction}*`)
+            new EmbedBuilder().setAuthor({ name: this.interaction.user.username, iconURL: this.interaction.user.displayAvatarURL() }).setTitle(`${text("review_word.title", this.dictionary.language.target)} ${this.dictionary.language} (${this.dictionary.preferences.review.side}-side)`).setURL("https://discord.com").setFooter({ text: `${text("main_menu.bot_version", this.dictionary.language.target)} ${process.env.version} ${this.flashcard.lastReviewed ? ` | ${text("review_word.last_review", this.dictionary.language.target)}` : ""}`, iconURL: this.interaction.client.user.displayAvatarURL() }).setTimestamp(this.flashcard.lastReviewed || new Date()).setDescription(`${text("review_word.did_you", this.dictionary.language.target)} __**${this.flashcard[this.dictionary.preferences.review.side]}**__?\n\n*${prediction}*`)
         ];
 
         //(||${this.flashcard[this.dictionary.prefferences.review.side === "front" ? "back" : "front"]}||)?\n\n${this.dictionary.prefferences.review.answer}
@@ -56,44 +57,43 @@ export class reviewWord {
         // Если режим ответа по кнопке включён
         if (this.dictionary.preferences.review.answer.type === "button") {
             components[0].addComponents(
-                new ButtonBuilder().setCustomId(`review:known`).setLabel("Помню").setStyle(ButtonStyle.Primary),
+                new ButtonBuilder().setCustomId(`review:known`).setLabel(text("review_word.known", this.dictionary.language.target)).setStyle(ButtonStyle.Primary),
             )
         };
 
         components[0].addComponents(
-            new ButtonBuilder().setCustomId(`review:unknown`).setLabel("Не помню").setStyle(ButtonStyle.Secondary)
+            new ButtonBuilder().setCustomId(`review:unknown`).setLabel(text("review_word.knownt", this.dictionary.language.target)).setStyle(ButtonStyle.Secondary)
         );
 
         components[0].addComponents(
-            new ButtonBuilder().setCustomId(`review:skip`).setLabel("Пропустить").setStyle(ButtonStyle.Secondary)
+            new ButtonBuilder().setCustomId(`review:skip`).setLabel(text("review_word.skip", this.dictionary.language.target)).setStyle(ButtonStyle.Secondary)
         );
 
         // Работа с автоматическим повторением и переключатели
         if (this.dictionary.preferences.review.auto.enabled) {
 
             components[0].addComponents(
-                new ButtonBuilder().setCustomId(`review:manual`).setLabel("[Режим]: Ручной").setStyle(ButtonStyle.Success)
+                new ButtonBuilder().setCustomId(`review:manual`).setLabel(`[${text("review_word.mode", this.dictionary.language.target)}]: ${text("review_word.modes.manual", this.dictionary.language.target)}`).setStyle(ButtonStyle.Success)
 
             )
         } else {
-            components[0].addComponents(new ButtonBuilder().setCustomId(`review:auto`).setLabel("[Режим]: Авто").setStyle(ButtonStyle.Success)
-            )
+            components[0].addComponents(new ButtonBuilder().setCustomId(`review:auto`).setLabel(`[${text("review_word.mode", this.dictionary.language.target)}]: ${text("review_word.modes.auto", this.dictionary.language.target)}`).setStyle(ButtonStyle.Success)            )
         };
 
         switch (this.dictionary.preferences.review.answer.type) {
             case "writting":
                 components[0].addComponents(
-                    new ButtonBuilder().setCustomId(`review:mode:writting`).setLabel("[Ответ]: Писать").setStyle(ButtonStyle.Success)
+                    new ButtonBuilder().setCustomId(`review:mode:writting`).setLabel(`[${text("review_word.answer", this.dictionary.language.target)}]: ${text("review_word.answers.writting", this.dictionary.language.target)}`).setStyle(ButtonStyle.Success)
                 );
                 break;
             case "button":
                 components[0].addComponents(
-                    new ButtonBuilder().setCustomId(`review:mode:button`).setLabel("[Ответ]: По кнопке").setStyle(ButtonStyle.Success)
+                    new ButtonBuilder().setCustomId(`review:mode:button`).setLabel(`[${text("review_word.answer", this.dictionary.language.target)}]: ${text("review_word.answers.button", this.dictionary.language.target)}`).setStyle(ButtonStyle.Success)
                 )
                 break;
             case "no":
                 components[0].addComponents(
-                    new ButtonBuilder().setCustomId(`review:mode:none`).setLabel("[Ответ]: Нету").setStyle(ButtonStyle.Success)
+                    new ButtonBuilder().setCustomId(`review:mode:none`).setLabel(`[${text("review_word.answers", this.dictionary.language.target)}]: $text("review_word.answers.none, this.dictionary.language.target)}`).setStyle(ButtonStyle.Success)
                 );
                 break;
         };
@@ -105,12 +105,12 @@ export class reviewWord {
          * 3. SM-2 (МО: множитель), режим 
          */
         components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setCustomId(`review:settings`).setLabel("Настройки").setStyle(ButtonStyle.Success)
+            new ButtonBuilder().setCustomId(`review:settings`).setLabel(text("buttons_reference.settings", this.dictionary.language.target)).setStyle(ButtonStyle.Success)
         ));
 
         components[1].addComponents(
-            new ButtonBuilder().setCustomId("review:side").setLabel(`Сторона: ${this.dictionary.preferences.review.side}`).setStyle(ButtonStyle.Success),
-            new ButtonBuilder().setCustomId("session:end").setLabel("Завершить сессию").setStyle(ButtonStyle.Danger)
+            new ButtonBuilder().setCustomId("review:side").setLabel(`${text("review_word.side", this.dictionary.language.target)} ${this.dictionary.preferences.review.side}`).setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId("session:end").setLabel(text("review_word.end_session", this.dictionary.language.target)).setStyle(ButtonStyle.Danger)
         )
 
         return { embeds, components }

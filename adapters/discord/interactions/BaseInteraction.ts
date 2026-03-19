@@ -8,6 +8,7 @@ import { channel } from "diagnostics_channel";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, DMChannel, EmbedBuilder, ForumThreadChannel } from "discord.js";
 import { ILike } from "typeorm";
 import fs from "node:fs";
+import { text } from "../../../core/languages/index.ts";
 
 /**
  * Класс базового взаимодействия пользователя с словарём
@@ -16,11 +17,13 @@ export class BaseInteraction {
     user: User;
     channel: DMChannel;
     dictionary?: Dictionary;
+    languageCode: string
 
-    constructor(user: User, channel: DMChannel, dictionary?: Dictionary) {
+    constructor(user: User, languageCode: string, channel: DMChannel, dictionary?: Dictionary, ) {
         this.user = user;
         this.channel = channel;
         this.dictionary = dictionary
+        this.languageCode = languageCode
     };
 
     /**
@@ -88,7 +91,7 @@ export class BaseInteraction {
                 return flashcard
 
             } else {
-                return "У вас нет квот для использования функций ИИ. Свяжитесь с разработчиком для получения новой.";
+                return text("base_interaction.quota_end", this.languageCode);
             }
 
         } else {
@@ -99,7 +102,7 @@ export class BaseInteraction {
             };
 
             if(!languages.every(lg => lg === languages[0])) {
-                return "Неверные параметры. Запрошенные слова задетекчены под разными языками";
+                return text("base_interaction.error_detection_language", this.languageCode);
             } 
 
             const termsIsSourceLang = detectLanguages(data[0]).includes(this.dictionary.language.source.slice(0, 2).toLowerCase());
@@ -140,7 +143,7 @@ export class BaseInteraction {
     }
 
     async log(systemMessage: string) {
-        const channel = await this.channel.client.channels.fetch("1406670575161839616") as ForumThreadChannel;
+        const channel = await this.channel.client.channels.fetch(process.env.log) as ForumThreadChannel;
         await channel.send(`${systemMessage}]`)
     }
 }
