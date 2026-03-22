@@ -2,16 +2,16 @@
     "registration": {
         "title": "Registration",
         "initializing": "Initializing...",
-        "select_languages": "Select languages, with which you will work with this bot.",
+        "select_languages": "Select the languages you will use with this bot.",
         "select_button": "Select",
         "main_language": "Your main language",
         "target_languages": "Target languages",
-        "target_languages_by_a_comma": "Target languages, separated by a comma. Example: English, French, Romanian",
-        "login_step_longread": "Now let's create an account in the bot.\n\nPassword - you can leave the generated one; you can request it later and copy it. Each login will require confirmation, similar to Telegram - login codes will be sent to your Discord/Telegram accounts. If you lose access to your Discord/Telegram accounts, you will enter this password.\n\nAnonymity - the system will not disclose your personal information (username, Discord/Telegram avatar, ID) to other users, for example, when searching for existing translations in the database.",
+        "target_languages_by_a_comma": "Target languages, separated by commas. Example: English, French, Romanian",
+        "login_step_longread": "Now let's create an account for the bot.\n\nPassword: You can keep the generated one; you can request it later to copy it. Each login will require confirmation. Similar to Telegram, login codes will be sent directly to your Discord/Telegram account. If you lose access to your Discord/Telegram account, you can use this password to log in.\n\nAnonymity: The system will not disclose your personal information (username, Discord/Telegram avatar, ID) to other users (for example, when searching for existing translations in the database).",
         "username": "Username",
         "password": "Password",
         "anonymous": "Anonymity",
-        "anon_disclaimer": "Left this field unchecked if you don't want to share your information with other users of the bot."
+        "anon_disclaimer": "Leave this field unchecked if you don't want to share your information with other users."
     },
     "buttons_reference": {
         "settings": "Settings",
@@ -24,43 +24,43 @@
         "welcome": "Welcome, ",
         "bot_version": "Version:",
         "filter": {
-            "doc": "not tested, ask for dev"
+            "doc": "Not tested, ask the dev"
         },
         "language_switch": {
-            "title": "Select language, with which you want interact now",
+            "title": "Select the language you want to interact with now",
             "button_create": "Create",
-            "dictionary_description": "Dictionary has {count} words",
-            "create_new_language": "Create new language",
+            "dictionary_description": "The dictionary has {count} words",
+            "create_new_language": "Create a new language",
             "name_language": "Language name"
         },
         "alpha_test": {
-            "thanks": "Thanks for contribution on alpha program! <3"
+            "thanks": "Thanks for contributing to the alpha program! <3"
         }
     },
     "base_interaction": {
-        "quota_end": "You're out of your qouta usage limit. Ask new for dev.",
-        "error_detection_languages": "Error parameters by massloading words. Asked words was detected as different languages"
+        "quota_end": "You've reached your usage quota. Ask the developer for more.",
+        "error_detection_languages": "Parameter error during bulk word upload. The requested words were detected as different languages."
     },
     "create_folder": {
-        "title": "Create folder in dictionary",
+        "title": "Create a folder in the dictionary",
         "name": "Folder name",
         "successful": "Folder {name} successfully created."
     },
     "create_set": {
-        "title": "Create set in dictionary",
+        "title": "Create a set in the dictionary",
         "name": "Set name",
-        "successful": "Set {name} successfully created",
-        "setting_up": "Setting up newly language",
-        "create_word_via_set": "Let's add first word",
+        "successful": "Set {name} successfully created.",
+        "setting_up": "Setting up the new language",
+        "create_word_via_set": "Let's add the first word",
         "button_create": "Go",
-        "name_first_set": "How we will name first set in this dictionary?"
+        "name_first_set": "What should we name the first set in this dictionary?"
     },
     "create_word": {
-        "title": "Create an word in dictionary",
-        "on_source": "Write word in a source language",
-        "on_target": "Write word translation for ",
-        "successful": "Word {arr} was successfully added to dictionary",
-        "go_to_main_menu": "Go to main menu"
+        "title": "Create a word in the dictionary",
+        "on_source": "Write the word in the source language",
+        "on_target": "Write the translation for ",
+        "successful": "Word {arr} was successfully added to the dictionary.",
+        "go_to_main_menu": "Go to the main menu"
     },
     "review_word": {
         "predictions": {
@@ -69,22 +69,21 @@
             "50": "You might not remember this word anymore unless you've encountered it somewhere else or made special associations with it. The last review was ",
             "default": "Most likely, you have forgotten this word. The last review was "
         },
-        "title": "Reviewing word from dictionary",
-        "last_review": "Last review for this word was",
-        "did_you": "Did you remember translation for",
+        "title": "Reviewing a word from the dictionary",
+        "last_review": "The last review for this word was",
+        "did_you": "Did you remember the translation for",
         "known": "Known",
-        "knownt": "Known't",
+        "knownt": "Don't know",
         "skip": "Skip",
         "mode": "Mode",
         "modes": {
-            "manual": "Manual",
             "auto": "Auto"
         },
         "answer": "Answer",
         "answers": {
             "button": "Button",
-            "writting": "Writting",
-            "none": "none"
+            "writting": "Writing",
+            "none": "None"
         },
         "side": "Side:",
         "end_session": "End session"
@@ -92,6 +91,6 @@
     "word_interaction": {
         "ai_entered": "AI entered",
         "you_entered": "You entered",
-        "an_word": "an word(s) in your dictionary"
+        "an_word": "a word (or words) in your dictionary"
     }
 }
