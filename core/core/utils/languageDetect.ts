@@ -1,20 +1,27 @@
 const alphabets: Array<{ id: string; data: string[] }> = [
     {
-      id: 'English',
+      id: 'en',
       data: [
         'a','b','c','d','e','f','g','h','i','j','k','l','m',
         'n','o','p','q','r','s','t','u','v','w','x','y','z'
       ]
-    },
+    },{
+  id: 'de',
+  data: [
+    'a','b','c','d','e','f','g','h','i','j','k','l','m',
+    'n','o','p','q','r','s','t','u','v','w','x','y','z',
+    'ä','ö','ü','ß'
+  ]
+},
     {
-      id: 'Russian',
+      id: 'ru',
       data: [
         'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н',
         'о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я'
       ]
     },
     {
-      id: 'Ukrainian',
+      id: 'uk',
       data: [
         'а','б','в','г','ґ','д','е','є','ж','з','и','і','ї','й','к','л','м','н',
         'о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ь','ю','я'
@@ -48,7 +55,6 @@ function detectLanguages(
     threshold: number = 0.2
   ): string[] {
     const alphabetsMap = buildCharSets(alphabets);
-    // Подготовка счётчиков
     const counts: Record<string, number> = {};
     for (const lang of Object.keys(alphabetsMap)) {
       counts[lang] = 0;

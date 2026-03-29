@@ -9,6 +9,7 @@ import {
 } from "database";
 import {
   ActionRowBuilder,
+  ActivityType,
   ButtonBuilder,
   ButtonStyle,
   Client,
@@ -31,13 +32,32 @@ import { NotificationType } from "database/models/Notification.ts";
 import { renewal } from "core/ai/Renewal.ts";
 import { Registration } from "core/services/Registration.ts";
 import { text } from "../../core/languages/index.ts";
+import path from "path";
+
+// import dotenv from "dotenv";
+// const envPath = path.resolve(process.cwd(), '../../.env');
+// dotenv.config({ path: envPath });
+// console.log('Root dir:', process.cwd(), console.log(process.env.discord_adapter_token));
+
+// Перехват синхронных и асинхронных ошибок, которые не были пойманы блоком try/catch
+process.on('uncaughtException', (err) => {
+    console.error('🔥 Поймана непредвиденная ошибка (uncaughtException):', err);
+    // Приложение продолжит работу, игнорируя ошибку
+});
+
+// Перехват ошибок в промисах (Promise), у которых нет обработчика .catch()
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ Необработанное отклонение промиса (unhandledRejection):', promise, 'причина:', reason);
+    // Приложение продолжит работу
+});
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
-  partials: [
-        Partials.Channel, 
-        Partials.Message 
-    ]
+  partials: [Partials.Channel, Partials.Message],
+  presence: {
+    activities: [{ name: `v${process.env.npm_package_version} | /start | ❤️`, state: "discord", type: ActivityType.Competing }],
+    status: "dnd",
+  }
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -119,7 +139,7 @@ client.on("interactionCreate", async (interaction) => {
             .setTitle(`${text("main_menu.welcome", "en")} ${user.name}`)
             .setDescription("descr not tested")
             .setFooter({
-              text: `${text("main_menu.bot_version", "en")} ${process.env.version} | ${text("alpha_test.thanks", "en")}`,
+              text: `${text("main_menu.bot_version", "en")} ${process.env.npm_package_version} | ${text("main_menu.alpha_test.thanks", "en")}`,
               iconURL:
                 "https://avatars.githubusercontent.com/u/230691002?u=34515c5df7da83f2bc3c87b87a81a9880b677945&v=4&size=80",
             })
@@ -190,28 +210,28 @@ client.on("interactionCreate", async (interaction) => {
               ) {
                 case "spawn": {
                   const notification = new Notification();
-                    notification.type = NotificationType.ReviewTime;
-                    notification.data = {
-                      userId: user.id,
-                      message: "Testify notification",
-                      alwaysUpdate: false,
-                      updatedNow: false,
-                    };
-                  
-                    await notification.save();
-                  
-                    const spawn = new Spawn();
-                    spawn.uuid = notification.uuid
-                    spawn.at = Date.now();
-                    spawn.during = 1000 * 60 * 60 * 6;
-                    spawn.flashcardIds = [];
-                    spawn.platform = "discord";
-                    spawn.userId = user.id;
-                    await spawn.initialize()
-                    await spawn.save();
-                    await spawn.ask();
-                  break
-                };
+                  notification.type = NotificationType.ReviewTime;
+                  notification.data = {
+                    userId: user.id,
+                    message: "Testify notification",
+                    alwaysUpdate: false,
+                    updatedNow: false,
+                  };
+
+                  await notification.save();
+
+                  const spawn = new Spawn();
+                  spawn.uuid = notification.uuid;
+                  spawn.at = Date.now();
+                  spawn.during = 1000 * 60 * 60 * 6;
+                  spawn.flashcardIds = [];
+                  spawn.platform = "discord";
+                  spawn.userId = user.id;
+                  await spawn.initialize();
+                  await spawn.save();
+                  await spawn.ask();
+                  break;
+                }
                 case "dictionary": {
                   await defer(interaction);
 
@@ -233,7 +253,10 @@ client.on("interactionCreate", async (interaction) => {
                     components: dictionary.buildButtonsUtil(),
                     embeds: [
                       embed.setDescription(
-                        text("main_menu.filter.doc",preferences.interfaceLanguage)
+                        text(
+                          "main_menu.filter.doc",
+                          preferences.interfaceLanguage,
+                        ),
                       ),
                     ],
                   });
@@ -276,14 +299,22 @@ client.on("interactionCreate", async (interaction) => {
                     const components: ActionRowBuilder<ButtonBuilder>[] = [];
                     const embeds = [
                       new EmbedBuilder().setTitle(
-                        text("language_switch.title", preferences.interfaceLanguage)
+                        text(
+                          "language_switch.title",
+                          preferences.interfaceLanguage,
+                        ),
                       ),
                     ];
                     let row =
                       new ActionRowBuilder<ButtonBuilder>().addComponents(
                         new ButtonBuilder()
                           .setCustomId(`language:create:noneed`)
-                          .setLabel(text("main_menu.language_switch.button_create", preferences.interfaceLanguage))
+                          .setLabel(
+                            text(
+                              "main_menu.language_switch.button_create",
+                              preferences.interfaceLanguage,
+                            ),
+                          )
                           .setStyle(ButtonStyle.Primary),
                       );
 
@@ -298,7 +329,10 @@ client.on("interactionCreate", async (interaction) => {
                       );
                       embeds[0].addFields({
                         name: dictionary.user.languages[i],
-                        value: text("main_menu.language_switch.dictionary_description", preferences.interfaceLanguage),
+                        value: text(
+                          "main_menu.language_switch.dictionary_description",
+                          preferences.interfaceLanguage,
+                        ),
                       });
                       if (
                         row.components.length === 5 ||
@@ -317,12 +351,22 @@ client.on("interactionCreate", async (interaction) => {
                     await interaction.showModal(
                       new ModalBuilder()
                         .setCustomId(`dictionary:newlanguage`)
-                        .setTitle(text("main_menu.language_switch.create_new_language", preferences.interfaceLanguage))
+                        .setTitle(
+                          text(
+                            "main_menu.language_switch.create_new_language",
+                            preferences.interfaceLanguage,
+                          ),
+                        )
                         .addComponents(
                           new ActionRowBuilder<TextInputBuilder>().addComponents(
                             new TextInputBuilder()
                               .setCustomId("language")
-                              .setLabel(text("main_menu.language_switch.name_language", preferences.interfaceLanguage))
+                              .setLabel(
+                                text(
+                                  "main_menu.language_switch.name_language",
+                                  preferences.interfaceLanguage,
+                                ),
+                              )
                               .setStyle(TextInputStyle.Short)
                               .setRequired(true)
                               .setMinLength(5)
@@ -371,20 +415,24 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("messageCreate", async (message) => {
-  console.log(message.content)
+  console.log(message.content);
   if (message.author.bot) return;
   if (!message.content) return;
   switch (message.content) {
     default:
       const user = await User.findOneBy({ discordIDS: message.author.id });
-      console.log(user.reviewing)
+      console.log(user.reviewing);
       if (user.reviewing) return;
       const preferences = await Preferences.findOneBy({ id: user.id });
 
-      console.log(user.lastAwaited + preferences.idleTimeout > Date.now())
+      console.log(user.lastAwaited + preferences.idleTimeout > Date.now());
       if (user.lastAwaited + preferences.idleTimeout > Date.now()) return;
 
-      const iWord = new WordInteraction(user, message.channel as DMChannel);
+      const iWord = new WordInteraction(
+        user,
+        preferences.language,
+        message.channel as DMChannel,
+      );
 
       await iWord.enter(message.content);
 
@@ -393,7 +441,7 @@ client.on("messageCreate", async (message) => {
 });
 
 client.login(
-  "MTMyNjMyOTA2OTQyMzI5NjU2Mw.Glyq5H.23wU9Cm3kV4i3OwAomEfHfesWiM0zUtcE_f1fA",
+  "MTQ4NzgxNjIyNzg5OTU3MjM4Ng.GuYnoJ.HTfSkfq70D9nqNoF98AtEBYKfJuzwekqrV0NzU",
 );
 
 export { client as DiscordClient };

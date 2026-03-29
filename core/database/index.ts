@@ -19,7 +19,7 @@ const datasource = new DataSource({
     url: "postgres://postgres:supersecretpassword@localhost:5432",
     // type: "better-sqlite3",
     // database: "db.sql",
-    dropSchema: true,
+    // dropSchema: true,
     synchronize: true,
     entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary, Notification, Spawn],
 });

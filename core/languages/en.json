@@ -1,96 +1,119 @@
 {
-    "registration": {
-        "title": "Registration",
-        "initializing": "Initializing...",
-        "select_languages": "Select the languages you will use with this bot.",
-        "select_button": "Select",
-        "main_language": "Your main language",
-        "target_languages": "Target languages",
-        "target_languages_by_a_comma": "Target languages, separated by commas. Example: English, French, Romanian",
-        "login_step_longread": "Now let's create an account for the bot.\n\nPassword: You can keep the generated one; you can request it later to copy it. Each login will require confirmation. Similar to Telegram, login codes will be sent directly to your Discord/Telegram account. If you lose access to your Discord/Telegram account, you can use this password to log in.\n\nAnonymity: The system will not disclose your personal information (username, Discord/Telegram avatar, ID) to other users (for example, when searching for existing translations in the database).",
-        "username": "Username",
-        "password": "Password",
-        "anonymous": "Anonymity",
-        "anon_disclaimer": "Leave this field unchecked if you don't want to share your information with other users."
-    },
-    "buttons_reference": {
-        "settings": "Settings",
-        "dictionary": "Dictionary",
-        "history": "History",
-        "feedback": "Feedback",
-        "spawn": "Spawn"
-    },
-    "main_menu": {
-        "welcome": "Welcome, ",
-        "bot_version": "Version:",
-        "filter": {
-            "doc": "Not tested, ask the dev"
-        },
-        "language_switch": {
-            "title": "Select the language you want to interact with now",
-            "button_create": "Create",
-            "dictionary_description": "The dictionary has {count} words",
-            "create_new_language": "Create a new language",
-            "name_language": "Language name"
-        },
-        "alpha_test": {
-            "thanks": "Thanks for contributing to the alpha program! <3"
-        }
-    },
-    "base_interaction": {
-        "quota_end": "You've reached your usage quota. Ask the developer for more.",
-        "error_detection_languages": "Parameter error during bulk word upload. The requested words were detected as different languages."
-    },
-    "create_folder": {
-        "title": "Create a folder in the dictionary",
-        "name": "Folder name",
-        "successful": "Folder {name} successfully created."
-    },
-    "create_set": {
-        "title": "Create a set in the dictionary",
-        "name": "Set name",
-        "successful": "Set {name} successfully created.",
-        "setting_up": "Setting up the new language",
-        "create_word_via_set": "Let's add the first word",
-        "button_create": "Go",
-        "name_first_set": "What should we name the first set in this dictionary?"
-    },
-    "create_word": {
-        "title": "Create a word in the dictionary",
-        "on_source": "Write the word in the source language",
-        "on_target": "Write the translation for ",
-        "successful": "Word {arr} was successfully added to the dictionary.",
-        "go_to_main_menu": "Go to the main menu"
-    },
-    "review_word": {
-        "predictions": {
-            "85": "You remember this word well, as the last review was ",
-            "70": "You will have to make an effort to remember this word, as the last review was ",
-            "50": "You might not remember this word anymore unless you've encountered it somewhere else or made special associations with it. The last review was ",
-            "default": "Most likely, you have forgotten this word. The last review was "
-        },
-        "title": "Reviewing a word from the dictionary",
-        "last_review": "The last review for this word was",
-        "did_you": "Did you remember the translation for",
-        "known": "Known",
-        "knownt": "Don't know",
-        "skip": "Skip",
-        "mode": "Mode",
-        "modes": {
-            "auto": "Auto"
-        },
-        "answer": "Answer",
-        "answers": {
-            "button": "Button",
-            "writting": "Writing",
-            "none": "None"
-        },
-        "side": "Side:",
-        "end_session": "End session"
-    }, 
-    "word_interaction": {
-        "ai_entered": "AI entered",
-        "you_entered": "You entered",
-        "an_word": "a word (or words) in your dictionary"
+  "registration": {
+    "title": "Registration",
+    "initializing": "Initializing...",
+    "select_languages": "Provide the languages for learning",
+    "select_button": "Select",
+    "main_language": "Your main language",
+    "target_languages": "Target languages",
+    "target_languages_by_a_comma": "Target languages, separated by commas. Example: English, French, Romanian",
+    "login_step_longread": "Now let's create an account for the bot.\n\nPassword: You can keep the generated one; you can request it later to copy it. Each login will require confirmation. Similar to Telegram, login codes will be sent directly to your Discord/Telegram account. If you lose access to your Discord/Telegram account, you can use this password to log in.\n\nAnonymity: The system will not disclose your personal information (username, Discord/Telegram avatar, ID) to other users (for example, when searching for existing translations in the database).",
+    "username": "Username",
+    "password": "Password",
+    "anonymous": "Anonymity",
+    "anon_disclaimer": "Leave this field unchecked if you don't want to share your information with other users.",
+    "want_connect": "Did you want connect another accounts from Discord/Telegram right now?",
+    "connect_discord": "Connect Discord",
+    "connect_telegram": "Connect Telegram",
+    "later": "Later",
+    "pref_settings": "Preferences",
+    "preferences": {
+      "type_answer": "Answer Type",
+      "auto_delete": "Auto Delete Answers",
+      "interval_rep": "Interval Repetition",
+      "extend_dictionary": "Extend Dictionary",
+      "generate_examples": "Generate Examples",
+      "global_search": "Global Search",
+      "general": "General",
+      "prim_platform": "Primary Platform",
+      "notifications": "Notifications",
+      "recomendations": "Recomendations from Developer",
+      "word_repetition": "Word Repetition",
+      "translation": "Translation",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "notice": "You always can change these settings later"
     }
+  },
+  "buttons_reference": {
+    "settings": "Settings",
+    "dictionary": "Dictionary",
+    "history": "History",
+    "feedback": "Feedback",
+    "spawn": "Spawn"
+  },
+  "main_menu": {
+    "welcome": "Welcome, ",
+    "bot_version": "Version:",
+    "filter": {
+      "doc": "Not tested, ask the dev"
+    },
+    "language_switch": {
+      "title": "Select the language you want to interact with now",
+      "button_create": "Create",
+      "dictionary_description": "The dictionary has {count} words",
+      "create_new_language": "Create a new language",
+      "name_language": "Language name"
+    },
+    "alpha_test": {
+      "thanks": "Thanks for contributing to the alpha program! <3"
+    }
+  },
+  "base_interaction": {
+    "quota_end": "You've reached your usage quota. Ask the developer for more.",
+    "error_detection_languages": "Parameter error during bulk word upload. The requested words were detected as different languages."
+  },
+  "create_folder": {
+    "title": "Create a folder in the dictionary",
+    "name": "Folder name",
+    "successful": "Folder {name} successfully created."
+  },
+  "create_set": {
+    "title": "Create a set in the dictionary",
+    "name": "Set name",
+    "successful": "Set {name} successfully created.",
+    "setting_up": "Setting up the new language",
+    "create_word_via_set": "Let's add the first word",
+    "button_create": "Go",
+    "name_first_set": "What should we name the first set in this dictionary?"
+  },
+  "create_word": {
+    "title": "Create a word in the dictionary",
+    "on_source": "Write the word in the source language",
+    "on_target": "Write the translation for ",
+    "successful": "Word {arr} was successfully added to the dictionary.",
+    "go_to_main_menu": "Go to the main menu"
+  },
+  "review_word": {
+    "predictions": {
+      "85": "You remember this word well, as the last review was ",
+      "70": "You will have to make an effort to remember this word, as the last review was ",
+      "50": "You might not remember this word anymore unless you've encountered it somewhere else or made special associations with it. The last review was ",
+      "default": "Most likely, you have forgotten this word. The last review was "
+    },
+    "title": "Reviewing a word from the dictionary",
+    "last_review": "The last review for this word was",
+    "did_you": "Did you remember the translation for",
+    "known": "Known",
+    "knownt": "Don't know",
+    "skip": "Skip",
+    "mode": "Mode",
+    "modes": {
+      "auto": "Auto"
+    },
+    "answer": "Answer",
+    "answers": {
+      "button": "Button",
+      "writting": "Writing",
+      "none": "None"
+    },
+    "side": "Side:",
+    "end_session": "End session"
+  },
+  "word_interaction": {
+    "ai_entered": "AI entered",
+    "you_entered": "You entered",
+    "an_word": "a word (or words) in your dictionary",
+    "select_by_unidf": "Select source-languages, via which we need identify this message. You can select how it will work in settings, \"Autoidentify language\""
+  }
 }

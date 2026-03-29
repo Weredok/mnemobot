@@ -1,6 +1,6 @@
 { 
     "name": "discord",
-    "version": "1.0.0-ver",
+    "version": "ALPHA",
     "main": "index.ts",
     "type": "module",
     "scripts": {

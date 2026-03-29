@@ -5,6 +5,13 @@ import { CEFR, Flashcard, Preferences, User } from "database";
 import { renewal } from "core/ai/Renewal.ts";
 
 client.once("ready", async () => {
+  const users = await User.find();
+  users.forEach(async(user) => {
+    if(user.lastAwaited){
+      user.lastAwaited = 0;
+      await user.save();
+    }
+  })
   // const dev = new User();
   // dev.telegramIDs = [8097145027];
   // dev.discordIDS = "1276300934141579305";
@@ -64,7 +71,6 @@ client.once("ready", async () => {
   //   },
   // ];
 
-  // @ts-ignore
   // await client.application?.commands.set(commands);
 //   const dev = new User();
 //   dev.telegramIDs = [8097145027];

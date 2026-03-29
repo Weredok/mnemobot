@@ -99,19 +99,26 @@ export class Registration {
         case 1:
           logger.systemMessage = JSON.stringify(this, (key, value) => {
             if (typeof value === "bigint") {
-              return value.toString(); 
+              return value.toString();
             }
-            return value; 
+            return value;
           });
-          await interaction.followUp(text("registration.initializing", this.interfaceLanguage));
+          await interaction.followUp(
+            text("registration.initializing", this.interfaceLanguage),
+          );
           console.log(this);
           const message_ = await interaction?.editReply({
-            content: text("registration.select_languages", this.interfaceLanguage),
+            content: text(
+              "registration.select_languages",
+              this.interfaceLanguage,
+            ),
             components: [
               new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                   .setCustomId("regstatlang")
-                  .setLabel(text("registration.select_button", this.interfaceLanguage))
+                  .setLabel(
+                    text("registration.select_button", this.interfaceLanguage),
+                  )
                   .setStyle(ButtonStyle.Success),
               ),
             ],
@@ -129,12 +136,22 @@ export class Registration {
               await interaction.showModal(
                 new ModalBuilder()
                   .setCustomId("regstatlangm")
-                  .setTitle(text("registration.select_languages", this.interfaceLanguage))
+                  .setTitle(
+                    text(
+                      "registration.select_languages",
+                      this.interfaceLanguage,
+                    ),
+                  )
                   .addComponents(
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("main")
-                        .setLabel(text("registration.main_language", this.interfaceLanguage))
+                        .setLabel(
+                          text(
+                            "registration.main_language",
+                            this.interfaceLanguage,
+                          ),
+                        )
                         .setStyle(TextInputStyle.Short)
                         .setPlaceholder("English")
                         .setRequired(true)
@@ -144,7 +161,12 @@ export class Registration {
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("languages")
-                        .setLabel(text("registration.target_languages", this.interfaceLanguage))
+                        .setLabel(
+                          text(
+                            "registration.target_languages",
+                            this.interfaceLanguage,
+                          ),
+                        )
                         .setPlaceholder(
                           text(
                             "registration.target_languages_by_a_comma",
@@ -197,13 +219,15 @@ export class Registration {
               .trim()
               .split(",")
               .map((ln) => {
-                return { name: ln.toLowerCase(), knowing: CEFR.A1 };
+                return { name: ln, knowing: CEFR.A1 };
               }),
           );
 
           const message__ = await interaction.editReply({
-            content:
-              text("registration.login_step_longread", this.interfaceLanguage),
+            content: text(
+              "registration.login_step_longread",
+              this.interfaceLanguage,
+            ),
             components: [
               new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
@@ -225,7 +249,9 @@ export class Registration {
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("username")
-                        .setLabel(text("registration.username", this.interfaceLanguage))
+                        .setLabel(
+                          text("registration.username", this.interfaceLanguage),
+                        )
                         .setValue(user?.username?.trim())
                         .setRequired(true)
                         .setMinLength(5)
@@ -235,7 +261,9 @@ export class Registration {
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
                         .setCustomId("password")
-                        .setLabel(text("registration.password", this.interfaceLanguage))
+                        .setLabel(
+                          text("registration.password", this.interfaceLanguage),
+                        )
                         .setRequired(true)
                         .setStyle(TextInputStyle.Short)
                         .setMinLength(8)
@@ -249,10 +277,18 @@ export class Registration {
                     ),
                     new ActionRowBuilder<TextInputBuilder>().addComponents(
                       new TextInputBuilder()
-                        .setLabel(text("registration.anonymous", this.interfaceLanguage))
+                        .setLabel(
+                          text(
+                            "registration.anonymous",
+                            this.interfaceLanguage,
+                          ),
+                        )
                         .setCustomId("anonymous")
                         .setPlaceholder(
-                          text("registration.anon_disclaimer", this.interfaceLanguage),
+                          text(
+                            "registration.anon_disclaimer",
+                            this.interfaceLanguage,
+                          ),
                         )
                         .setRequired(false)
                         .setStyle(TextInputStyle.Short),
@@ -286,17 +322,30 @@ export class Registration {
           this.anonymous = Boolean(data.split(" ||| "));
 
           const message___ = await interaction.editReply({
-            content:
-              "Желаете ли подключить другие аккаунты в Telegram/Discord? Рекомендуем сделать это, чтобы иметь резервные возможности входа.",
+            content: text("registration.want_connect", this.interfaceLanguage),
             components: [
               new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
-                  .setCustomId("regdtg_yes")
-                  .setLabel("Да")
+                  .setCustomId("connect_discord")
+                  .setLabel(
+                    text(
+                      "registration.connect_discord",
+                      this.interfaceLanguage,
+                    ),
+                  )
                   .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
-                  .setCustomId("regdtg_no")
-                  .setLabel("Нет")
+                  .setCustomId("connect_telegram")
+                  .setLabel(
+                    text(
+                      "registration.connect_telegram",
+                      this.interfaceLanguage,
+                    ),
+                  )
+                  .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                  .setCustomId("regtg_no")
+                  .setLabel(text("registration.later", this.interfaceLanguage))
                   .setStyle(ButtonStyle.Secondary),
               ),
             ],
@@ -326,28 +375,43 @@ export class Registration {
               .setColor("NotQuiteBlack")
               .setAuthor({
                 iconURL: user.displayAvatarURL(),
-                name: `Ваши настройки предпочтений`,
+                name: text(
+                  "registration.pref_settings",
+                  this.interfaceLanguage,
+                ),
               })
               .addFields(
                 {
-                  name: "Повтор слов",
-                  value: `**Тип ответа:** ${this.preferences.review.answer.type}\n**Автоудаление ответов:** ${this.preferences.review.answer.type}\n**__Интервальное повторение:__** ${this.preferences.review.sm2.mode}\n`,
+                  name: text(
+                    "registration.preferences.word_repetition",
+                    this.interfaceLanguage,
+                  ),
+                  value: `**${text("registration.preferences.type_answer", this.interfaceLanguage)}:** ${this.preferences.review.answer.type}\n**${text("registration.preferences.auto_delete", this.interfaceLanguage)}:** ${this.preferences.review.answer.type}\n**__${text("registration.preferences.interval_rep", this.interfaceLanguage)}:__** ${this.preferences.review.sm2.mode}\n`,
                   inline: true,
                 },
                 {
-                  name: "Пополнение словаря",
-                  value: `**Перевод:** ${this.preferences.enter.enterringTranslateType}\n**Генерация примеров:** ${this.preferences.enter.generateExampleType}\n**Глобальный поиск:** ${this.preferences.enter.searchGlobalBeforeAI}`,
+                  name: text(
+                    "registration.preferences.extend_dictionary",
+                    this.interfaceLanguage,
+                  ),
+                  value: `**${text("registration.preferences.translation", this.interfaceLanguage)}:** ${this.preferences.enter.enterringTranslateType}\n**${text("registration.preferences.generate_examples", this.interfaceLanguage)}:** ${this.preferences.enter.generateExampleType}\n**${text("registration.preferences.global_search", this.interfaceLanguage)}:** ${this.preferences.enter.searchGlobalBeforeAI}`,
                   inline: true,
                 },
                 {
-                  name: "Общие",
-                  value: `**Любимая платформа:** ${this.preferences.platfrom} (${this.preferences.account})\n**Уведомления:** ${this.preferences.notifications ? "включены" : "выключены"}\n**Рекомендации от разработчика:** ${this.preferences.recomendations ? "включены" : "выключены"}`,
+                  name: text(
+                    "registration.preferences.general",
+                    this.interfaceLanguage,
+                  ),
+                  value: `**${text("registration.preferences.prim_platform", this.interfaceLanguage)}:** ${this.preferences.platfrom} (${this.preferences.account})\n**${text("registration.preferences.notifications", this.interfaceLanguage)}:** ${this.preferences.notifications ? text("registration.preferences.enabled", this.interfaceLanguage) : text("registration.preferences.disabled", this.interfaceLanguage)}\n**${text("registration.preferences.recomendations", this.interfaceLanguage)}:** ${this.preferences.recomendations ? text("registration.preferences.enabled", this.interfaceLanguage) : text("registration.preferences.disabled", this.interfaceLanguage)}`,
                   inline: true,
                 },
               )
               .setFooter({
                 iconURL: interaction.client.user.displayAvatarURL(),
-                text: "Вы всегда можете изменить эти настройки.",
+                text: text(
+                  "registration.preferences.notice",
+                  this.interfaceLanguage,
+                ),
               }),
           ];
 
@@ -371,10 +435,12 @@ export class Registration {
 
               let usr = new UserDatabase();
               usr.knowing = this.languages.reduce((acc, l) => {
-                acc[l.name] = l.knowing;
+                acc[l.name.toLowerCase().slice(0, 2)] = l.knowing;
                 return acc;
               }, {});
-              usr.languages = this.languages.map((l) => l.name);
+              usr.languages = this.languages.map((l) =>
+                l.name.toLowerCase().slice(0, 2),
+              );
               usr.aiRestrictions = [];
               usr.aiUsing = [];
               usr.telegramIDs = [];

@@ -102,7 +102,7 @@ export class BaseInteraction {
             };
 
             if(!languages.every(lg => lg === languages[0])) {
-                return text("base_interaction.error_detection_language", this.languageCode);
+                return text("base_interaction.error_detection_languages", this.languageCode);
             } 
 
             const termsIsSourceLang = detectLanguages(data[0]).includes(this.dictionary.language.source.slice(0, 2).toLowerCase());

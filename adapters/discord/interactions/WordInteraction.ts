@@ -106,7 +106,7 @@ export class WordInteraction extends BaseInteraction {
           iconURL: message.author.displayAvatarURL(),
         })
         .setURL("https://discord.com")
-        .setTitle(`${flValues.front} (${this.dictionary.language.target})`)
+        .setTitle(`(${flValues.front}) ${flValues.back} (${this.dictionary.language.target})`)
         .setDescription(
           `${isAI ? text("word_interaction.ai_entered", this.languageCode) : text("word_interaction.you_entered", this.languageCode)} ${text("word_interaction.an_word", this.languageCode)} *${flValues.front}* \`${this.dictionary.language.source} -> ${this.dictionary.language.target}\``
         )
@@ -156,7 +156,7 @@ export class WordInteraction extends BaseInteraction {
       !source
     ) {
       const selectingLanguageMessage = await this.channel.send({
-        content: `Выберите язык, которым нужно идентифицировать введенное вами сообщение. Вы можете управлять этим поведением в настройках бота, раздел \`Автоматическое определение языка\``,
+        content: text("word_interaction.select_by_unidf", this.languageCode),
         components: [
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
@@ -423,7 +423,7 @@ export class WordInteraction extends BaseInteraction {
         const { examples_source, examples_target } =
           await this.generateExamples();
         await interaction.followUp({
-          content: `**Примеры**\n\n${examples_source.map((example, i) => `${i + 1}. ${example}\n*${examples_target[i]}`).join("\n")}`,
+          content: `**Примеры**\n\n${examples_source?.map((example, i) => `${i + 1}. ${example}\n*${examples_target[i]}`)?.join("\n") || "отсутсвуют, проблемы с квотой"}`,
         });
       }
     });
@@ -483,6 +483,8 @@ export class WordInteraction extends BaseInteraction {
       this.dictionary.language.source.slice(0, 2).toLowerCase()
     );
 
+    console.log(quota, isSourceLanguage);
+
     if (quota) {
       const rq = `From ${isSourceLanguage ? this.dictionary.language.source : this.dictionary.language.target} (${this.user.knowing[isSourceLanguage ? this.dictionary.language.source : this.dictionary.language.target] || "B1"}) to ${isSourceLanguage ? this.dictionary.language.target : this.dictionary.language.source} (${this.user.knowing[isSourceLanguage ? this.dictionary.language.target : this.dictionary.language.source] || "B1"}). Word: ${this.word.front[0]}.`;
       let datestamp = Date.now();
@@ -519,6 +521,8 @@ export class WordInteraction extends BaseInteraction {
       );
 
       return { examples_source, examples_target };
+    } else {
+      return { examples_source: [], examples_target: [] };
     }
   }
 }
