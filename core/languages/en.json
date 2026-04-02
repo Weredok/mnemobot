@@ -57,6 +57,21 @@
     },
     "alpha_test": {
       "thanks": "Thanks for contributing to the alpha program! <3"
+    },
+    "home": "Home",
+    "feedback_button": "Feedback",
+    "spawn_button": "Spawn",
+    "settings": {
+      "title": "Setting up the bot",
+      "change_user_info": "Change User Info",
+      "preferences": "Preferences",
+      "quotes": "Quotes"
+    },
+    "dictionary": {
+      "title": "Dictionary",
+      "change_knowing_languages": "Change knowing languages",
+      "add_new_language": "Add new language",
+      "read_about_interaction_bot": "Read about interaction bot"
     }
   },
   "base_interaction": {
