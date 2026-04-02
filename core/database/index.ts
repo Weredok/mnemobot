@@ -7,16 +7,14 @@ import { User, CEFR } from "./models/User.ts";
 import { Folder } from "./models/Folder.ts";
 import { Log } from "./models/Log.ts";
 import { Preferences } from "./models/Preferences.ts";
-import { config } from "dotenv";
 import fs from "fs";    
 import { Dictionary } from "core";
 import { Notification, NotificationType } from "./models/Notification.ts";
 import { Spawn } from "./models/Spawn.ts";
-config({ path: "./../../.env" });
 
 const datasource = new DataSource({
     type: "postgres",
-    url: "postgres://postgres:supersecretpassword@localhost:5432",
+    url: process.env.database_url,
     // type: "better-sqlite3",
     // database: "db.sql",
     // dropSchema: true,
@@ -25,7 +23,7 @@ const datasource = new DataSource({
 });
 
 
-await datasource.initialize().then((ds) => { console.log(`[${new Date().toLocaleString()}]: База данных ${ds.options.type} успешно подключена`) })
+await datasource.initialize()
 export { datasource }
 export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification, NotificationType,Spawn }
 export type { AiUsageQuota, AiUsageRecord } from "./models/User.ts";

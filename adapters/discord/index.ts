@@ -40,23 +40,46 @@ import path from "path";
 // console.log('Root dir:', process.cwd(), console.log(process.env.discord_adapter_token));
 
 // Перехват синхронных и асинхронных ошибок, которые не были пойманы блоком try/catch
-process.on('uncaughtException', (err) => {
-    console.error('🔥 Поймана непредвиденная ошибка (uncaughtException):', err);
-    // Приложение продолжит работу, игнорируя ошибку
+process.on("uncaughtException", (err) => {
+  console.error("🔥 Поймана непредвиденная ошибка (uncaughtException):", err);
+  // Приложение продолжит работу, игнорируя ошибку
 });
 
 // Перехват ошибок в промисах (Promise), у которых нет обработчика .catch()
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('⚠️ Необработанное отклонение промиса (unhandledRejection):', promise, 'причина:', reason);
-    // Приложение продолжит работу
+process.on("unhandledRejection", (reason, promise) => {
+  console.error(
+    "⚠️ Необработанное отклонение промиса (unhandledRejection):",
+    promise,
+    "причина:",
+    reason,
+  );
+  // Приложение продолжит работу
 });
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
   partials: [Partials.Channel, Partials.Message],
   presence: {
-    activities: [{ name: `v${process.env.npm_package_version} | /start | ❤️`, state: "discord", type: ActivityType.Competing }],
+    activities: [
+      {
+        name: `v${process.env.version} | /start | ❤️`,
+        state: "discord",
+        type: ActivityType.Competing,
+      },
+    ],
     status: "dnd",
+  },
+});
+
+client.on("interactionCreate", async (interaction) => {
+  if (
+    interaction.isChatInputCommand() &&
+    interaction.commandName === "start" &&
+    interaction.user.id === "1276300934141579305"
+  ) {
+    await interaction.deferReply({ ephemeral: true });
+
+    
   }
 });
 
@@ -440,8 +463,6 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-client.login(
-  "MTQ4NzgxNjIyNzg5OTU3MjM4Ng.GuYnoJ.HTfSkfq70D9nqNoF98AtEBYKfJuzwekqrV0NzU",
-);
+await client.login(process.env.discord_adapter_token);
 
 export { client as DiscordClient };

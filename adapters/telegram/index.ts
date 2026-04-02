@@ -1,6 +1,8 @@
 import { Telegram } from "puregram";
 
-const client = new Telegram({ token: "8287826634:AAFGorZTK7a56xVm_FXj5Qdc8MOoS1u-JJQ" });
+console.log(process.env.version)
+const client = new Telegram({ token: process.env.telegram_adapter_token });
+
 await client.updates.startPolling();
 
 export { client as TelegramClient }
