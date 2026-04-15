@@ -348,8 +348,8 @@ export class WordInteraction extends BaseInteraction {
             user.discordIDS
           );
           const telegram = await TelegramClient.api.getChatMember({
-            chat_id: user.telegramIDs[0],
-            user_id: user.telegramIDs[0],
+            chat_id: this.dictionary.preferences.account,
+            user_id: Number(this.dictionary.preferences.account),
           });
           const anonymous = (await Preferences.findOneBy({ id: user.id }))
             .anonymous;

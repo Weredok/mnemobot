@@ -402,7 +402,7 @@ export class Registration {
                     "registration.preferences.general",
                     this.interfaceLanguage,
                   ),
-                  value: `**${text("registration.preferences.prim_platform", this.interfaceLanguage)}:** ${this.preferences.platfrom} (${this.preferences.account})\n**${text("registration.preferences.notifications", this.interfaceLanguage)}:** ${this.preferences.notifications ? text("registration.preferences.enabled", this.interfaceLanguage) : text("registration.preferences.disabled", this.interfaceLanguage)}\n**${text("registration.preferences.recomendations", this.interfaceLanguage)}:** ${this.preferences.recomendations ? text("registration.preferences.enabled", this.interfaceLanguage) : text("registration.preferences.disabled", this.interfaceLanguage)}`,
+                  value: `**${text("registration.preferences.prim_platform", this.interfaceLanguage)}:** ${this.preferences.platform} (${this.preferences.account})\n**${text("registration.preferences.notifications", this.interfaceLanguage)}:** ${this.preferences.notifications ? text("registration.preferences.enabled", this.interfaceLanguage) : text("registration.preferences.disabled", this.interfaceLanguage)}\n**${text("registration.preferences.recomendations", this.interfaceLanguage)}:** ${this.preferences.recomendations ? text("registration.preferences.enabled", this.interfaceLanguage) : text("registration.preferences.disabled", this.interfaceLanguage)}`,
                   inline: true,
                 },
               )

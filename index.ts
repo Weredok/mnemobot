@@ -2,6 +2,7 @@ import "./setup.ts";
 import { renewal } from "core/ai/Renewal.ts";
 import { CEFR, datasource, Flashcard, Preferences, Set, User } from "database";
 import { DiscordClient } from "discord";
+import { SlashCommandBuilder } from "discord.js";
 import { TelegramClient } from "telegram";
 const users = await User.find();
 users.forEach(async (user) => {
@@ -12,10 +13,16 @@ users.forEach(async (user) => {
 });
 
 if (process.env.stage === "dev") {
+  const commands = [
+    new SlashCommandBuilder().setName("start").setDescription("Main menu"),
+  ];
+
+  await DiscordClient.application.commands.set(commands);
   const dev = new User();
-  dev.telegramIDs = [8097145027];
+  dev.telegramIDs = [8097145027, 8146987863];
   dev.discordIDS = "1276300934141579305";
   dev.sessions = [];
+  dev.name = "nxdreaming (developer account)";
   dev.sets = [];
   dev.wordsTotal = 0;
   dev.languages = ["uk", "en", "de"];
@@ -26,7 +33,10 @@ if (process.env.stage === "dev") {
 
   const prefs = new Preferences();
   await prefs.init(dev);
-  await prefs.save();
+  prefs.interfaceLanguage = "en";
+  prefs.account = "8146987863";
+  prefs.platform = "telegram"
+    await prefs.save();
 
   await renewal(dev.id, {
     notice: "dev tests",

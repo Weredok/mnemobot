@@ -45,6 +45,7 @@
   "main_menu": {
     "welcome": "Welcome, ",
     "bot_version": "Version:",
+    "description": "You're now learning $count_languages languages, it's about $count_word words, learned by helping this bot. $count_dbt_words words should be reminded today, to get started press the \"Spawn\" button.",
     "filter": {
       "doc": "Not tested, ask the dev"
     },
@@ -56,7 +57,7 @@
       "name_language": "Language name"
     },
     "alpha_test": {
-      "thanks": "Thanks for contributing to the alpha program! <3"
+      "thanks": "Thanks for contributing to the alpha program!"
     },
     "home": "Home",
     "feedback_button": "Feedback",

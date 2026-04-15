@@ -17,7 +17,8 @@ const datasource = new DataSource({
     url: process.env.database_url,
     // type: "better-sqlite3",
     // database: "db.sql",
-    // dropSchema: true,
+    name: process.env.database_name,
+    dropSchema: true,
     synchronize: true,
     entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary, Notification, Spawn],
 });

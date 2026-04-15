@@ -33,6 +33,8 @@ import { renewal } from "core/ai/Renewal.ts";
 import { Registration } from "core/services/Registration.ts";
 import { text } from "../../core/languages/index.ts";
 import path from "path";
+import { MenuHelper, StartMenu } from "commands";
+import { platform } from "os";
 
 // import dotenv from "dotenv";
 // const envPath = path.resolve(process.cwd(), '../../.env');
@@ -78,14 +80,26 @@ client.on("interactionCreate", async (interaction) => {
     interaction.user.id === "1276300934141579305"
   ) {
     await interaction.deferReply({ ephemeral: true });
+    const user = await User.findOneBy({ discordIDS: interaction.user.id });
+    const mh = new MenuHelper(user,
+      {
+        userId: user.id,
+        discordUserId: interaction.user.id,
+        telegramUserId: user.telegramIDs[0],
+      },
+       "discord",
+    )
+    const startmenu = new StartMenu(mh);
 
-    
+    await startmenu.initialize()
+    const { embeds, components, content } = await startmenu.build();
+    await interaction.editReply({ embeds, components, content });
   }
 });
 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isCommand()) {
-    if (interaction.commandName === "start") {
+    if (interaction.commandName === "start" && interaction.user.id !== "1276300934141579305") {
       await interaction.deferReply({ ephemeral: true });
       const user = await User.findOneBy({ discordIDS: interaction.user.id });
 
