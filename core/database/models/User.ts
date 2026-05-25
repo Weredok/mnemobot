@@ -45,23 +45,23 @@ export class User extends BaseEntity {
     // Количество повторенных слов суммарно
     wordsTotal: number;
 
-    @Column("simple-array")
+    @Column("simple-array", { nullable: true })
     // Сессии пользователя по повторению слов
     sessions: string[];
 
-    @Column("simple-array")
+    @Column("simple-array", { nullable: true })
     // Сеты пользователя
     sets: string[];
 
-    @Column("simple-array")
+    @Column("simple-array", { nullable: true })
     // Языки пользователя
     languages: string[];
 
-    @Column("simple-array")
-    // Список Telegram-аккаунтов
-    telegramIDs: number[]
+  @Column("text", { array: true, default: [] })
+  // Список Telegram-аккаунтов
+  telegramIDs: number[];
 
-    @Column("text")
+    @Column("text", { nullable: true })
     // Список Discord-аккаунтов
     discordIDS: string
 

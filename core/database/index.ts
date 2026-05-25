@@ -19,7 +19,7 @@ const datasource = new DataSource({
     // database: "db.sql",
     name: process.env.database_name,
     dropSchema: true,
-    synchronize: true,
+    synchronize: process.env.stage === "dev",
     entities: [Flashcard, Set, Session, User, Folder, Log, Preferences, Dictionary, Notification, Spawn],
 });
 

@@ -11,6 +11,7 @@ import { MinKey } from "typeorm/browser";
 import { Preferences } from "./Preferences.ts";
 import { EmbedBuilder } from "discord.js";
 
+
 @Entity()
 class Flashcard extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
@@ -84,7 +85,6 @@ class Flashcard extends BaseEntity {
     switch (type) {
       case "dynamic":
         q = (5 - 4 * (Math.min(w, m) / m)) * Number(c);
-        console.log(q);
         break;
       case "static":
         if (c && t < 5000) {
@@ -131,7 +131,6 @@ class Flashcard extends BaseEntity {
           24 * 365, // 1 год
         );
 
-        console.log(baseHours, growth, this.intervalReviewCount, this.strength, this.halfLifeHours);
         break;
 
       case "static":

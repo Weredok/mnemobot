@@ -3,15 +3,15 @@ import { User } from "database";
 import { Telegram } from "puregram";
 import { ArrayContainedBy, ArrayContains } from "typeorm";
 
-console.log(process.env.version);
 const client = new Telegram({ token: process.env.telegram_adapter_token });
 
 client.updates.on("message", async (ctx) => {
   switch (ctx.text) {
     case "/start":
       const user = await User.findOneBy({
-        telegramIDs: ArrayContainedBy([String(ctx.from.id)]),
+        telegramIDs: ArrayContains([String(ctx.from.id)]),
       });
+
       if (!user) {
         console.error(
           `[database] (Telegram): User with id ${ctx.from.id} not found. Request aborted.`,
@@ -23,7 +23,7 @@ client.updates.on("message", async (ctx) => {
         {
           userId: user.id,
           discordUserId: undefined,
-          telegramUserId: user.telegramIDs[0],
+          telegramUserId: Number(user.telegramIDs[0]),
         },
         "telegram",
       );
