@@ -18,6 +18,7 @@ import {
   EmbedBuilder,
   ModalBuilder,
   Partials,
+  StringSelectMenuBuilder,
   TextChannel,
   TextInputBuilder,
   TextInputStyle,
@@ -35,28 +36,7 @@ import { text } from "../../core/languages/index.ts";
 import path from "path";
 import { MenuHelper, StartMenu } from "commands";
 import { platform } from "os";
-
-// import dotenv from "dotenv";
-// const envPath = path.resolve(process.cwd(), '../../.env');
-// dotenv.config({ path: envPath });
-// console.log('Root dir:', process.cwd(), console.log(process.env.discord_adapter_token));
-
-// Перехват синхронных и асинхронных ошибок, которые не были пойманы блоком try/catch
-process.on("uncaughtException", (err) => {
-  console.error("🔥 Поймана непредвиденная ошибка (uncaughtException):", err);
-  // Приложение продолжит работу, игнорируя ошибку
-});
-
-// Перехват ошибок в промисах (Promise), у которых нет обработчика .catch()
-process.on("unhandledRejection", (reason, promise) => {
-  console.error(
-    "⚠️ Необработанное отклонение промиса (unhandledRejection):",
-    promise,
-    "причина:",
-    reason,
-  );
-  // Приложение продолжит работу
-});
+import { Location } from "commands/classes/StartMenu.ts";
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
@@ -81,388 +61,140 @@ client.on("interactionCreate", async (interaction) => {
   ) {
     await interaction.deferReply({ ephemeral: true });
     const user = await User.findOneBy({ discordIDS: interaction.user.id });
-    const mh = new MenuHelper(user,
+    const mh = new MenuHelper(
+      user,
       {
         userId: user.id,
         discordUserId: interaction.user.id,
         telegramUserId: user.telegramIDs[0],
       },
-       "discord",
-    )
+      "discord",
+    );
     const startmenu = new StartMenu(mh);
 
-    await startmenu.initialize()
-    const { embeds, components, content } = await startmenu.build();
+    await startmenu.initialize();
+    const { embeds, components, content } = await startmenu.locate();
     await interaction.editReply({ embeds, components, content });
+  } else if (
+    interaction.isButton() &&
+    interaction.customId.split(".").length > 1
+  ) {
+    interaction.customId.split(".")[
+      interaction.customId.split(".").length - 1
+    ] !== "modal"
+      ? (await interaction.deferUpdate(),
+        await interaction.editReply({
+          components: interaction.message.components.length
+            ? interaction.message.components.map((a) => {
+                return new ActionRowBuilder<
+                  ButtonBuilder | StringSelectMenuBuilder
+                >().addComponents(
+                  // @ts-ignore
+                  a.components.map((b) => {
+                    if (b.type === ComponentType.Button) {
+                      return new ButtonBuilder(b.data)
+                        .setDisabled(true)
+                        .setStyle(ButtonStyle.Secondary);
+                    } else if (b.type === ComponentType.StringSelect) {
+                      return new StringSelectMenuBuilder(b.data).setDisabled(
+                        true,
+                      );
+                    }
+                  }),
+                );
+              })
+            : [],
+        }))
+      : undefined;
+
+    const user = await User.findOneBy({ discordIDS: interaction.user.id });
+    const mh = new MenuHelper(
+      user,
+      {
+        userId: user.id,
+        discordUserId: interaction.user.id,
+        telegramUserId: user.telegramIDs[0],
+      },
+      "discord",
+    );
+    const startmenu = new StartMenu(mh);
+    await startmenu.initialize();
+    const { embeds, components, content, modal } = await startmenu.locate(
+      interaction.customId as Location,
+    );
+
+    console.log(interaction.customId, "trig");
+
+    if ((embeds.length || components.length) && !modal) {
+      await interaction.editReply({
+        embeds: embeds ? embeds : [],
+        components: components ? components : [],
+        content: content ? content : "",
+      });
+    } else if (!embeds.length && !components.length && !content && !modal) {
+      await interaction.editReply({
+        content: `[WARNING]: (9002) **__${interaction.customId}__** not implemented yet :)`,
+      });
+    } else if (modal) {
+      await interaction.showModal(modal);
+    }
   }
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (interaction.isCommand()) {
-    if (interaction.commandName === "start" && interaction.user.id !== "1276300934141579305") {
-      await interaction.deferReply({ ephemeral: true });
-      const user = await User.findOneBy({ discordIDS: interaction.user.id });
+  if (interaction.isModalSubmit()) {
+    switch (interaction.customId) {
+      case "main_menu.settings.change_user_info_modal":
+        await interaction.deferUpdate();
+        const user = await User.findOneBy({ discordIDS: interaction.user.id });
+        const mh = new MenuHelper(
+          user,
+          {
+            userId: user.id,
+            discordUserId: interaction.user.id,
+            telegramUserId: user.telegramIDs[0],
+          },
+          "discord",
+        );
 
-      if (!user) {
-        const service = new Registration();
-        await service.initialize({
-          platform: "discord",
-          userId: interaction.user.id,
-          interaction,
-        });
-      } else {
-        /**
-         * Настройки
-         * - Предпочтения
-         * - Уведомления
-         * - О боте
-         * - СМ-2 значения
-         * - Мультиплатформенность
-         *
-         * Словарь
-         * - Сэты
-         * - Фильтр (папки/сэты/карточки)
-         * - Языки
-         * - Интерактив
-         *
-         * История
-         * - Фильтр истории
-         *
-         * Обратная связь
-         * - Предложения
-         * - Баг-репорт
-         * - Вопрос по функционалу
-         * - Документация
-         *
-         * Спавн
-         * - Повтор слов
-         * - Статистика за промежуток времени
-         * - Последний чейнджлог
-         * - Мотивационная статистика
-         */
+        user.name = interaction.fields
+          .getTextInputValue("main_menu.settings.change_user_info_username")
+          .slice(0, 24);
+        user.password = interaction.fields
+          .getTextInputValue("main_menu.settings.change_user_info_password")
+          .slice(0, 24);
 
-        const components = [
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setCustomId("settings")
-              .setLabel(text("buttons_reference.settings", "en"))
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId("dictionary")
-              .setLabel(text("buttons_reference.dictionary", "en"))
-              .setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder()
-              .setCustomId("history")
-              .setLabel(text("buttons_reference.history", "en"))
-              .setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder()
-              .setCustomId("feedback")
-              .setLabel(text("buttons_reference.feedback", "en"))
-              .setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder()
-              .setCustomId("spawn")
-              .setLabel(text("buttons_reference.spawn", "en"))
-              .setStyle(ButtonStyle.Secondary),
-          ),
-        ];
+        await user.save();
 
-        const embeds = [
-          new EmbedBuilder()
-            .setColor("DarkButNotBlack")
-            .setAuthor({
-              name: interaction.user.username,
-              iconURL: interaction.user.avatarURL() || "",
-            })
-            .setTitle(`${text("main_menu.welcome", "en")} ${user.name}`)
-            .setDescription("descr not tested")
-            .setFooter({
-              text: `${text("main_menu.bot_version", "en")} ${process.env.npm_package_version} | ${text("main_menu.alpha_test.thanks", "en")}`,
-              iconURL:
-                "https://avatars.githubusercontent.com/u/230691002?u=34515c5df7da83f2bc3c87b87a81a9880b677945&v=4&size=80",
-            })
-            .setTimestamp(),
-        ];
-
-        const message = await interaction.followUp({
-          embeds,
-          components,
+        const startmenu = new StartMenu(mh);
+        await startmenu.initialize();
+        const { embeds, components, content, modal } = await startmenu.locate(
+          Location.Settings,
+        );
+        await interaction.editReply({
+          embeds: embeds ? embeds : [],
+          components: components ? components : [],
+          content:
+            `${text("main_menu.settings.change_user_info.success", startmenu.preferences.interfaceLanguage)}` +
+            content
+              ? `\n\n${content}`
+              : "",
         });
 
-        const collector = message.createMessageComponentCollector({
-          componentType: ComponentType.Button,
-          time: 60 * 1000,
-        });
-
-        collector.on("collect", async (interaction) => {
-          const int = {
-            type: interaction.component.type,
-            customId: interaction.customId,
-          };
-
-          let embed: EmbedBuilder = new EmbedBuilder();
-          let components: ActionRowBuilder<ButtonBuilder>[] = [];
-          switch (int.type) {
-            case ComponentType.Button: {
-              const [name, data] = int.customId.split(":");
-              const user = await User.findOneBy({
-                discordIDS: interaction.user.id,
-              });
-              const preferences = await Preferences.findOneBy({ id: user.id });
-
-              const dictionary = new Dictionary({
-                userId: user.id,
-                folderIds: [],
-                setIds: [],
-                flashcardIds: [],
-                language: { source: "en", target: "ru" },
-                folders: [],
-                sets: [],
-                flashcards: [],
-                user,
-                preferences,
-              });
-              await dictionary.syncronize();
-
-              switch (
-                name as
-                  | "settings"
-                  | "spawn"
-                  | "history"
-                  | "feedback"
-                  | "dictionary"
-                  | "create"
-                  | "interactive"
-                  | "sets"
-                  | "language"
-                  | "filter"
-                  | "interactive"
-                  | "frequency"
-                  | "dateOfCreation"
-                  | "length"
-                  | "forgotten"
-                  | "polysemitic"
-                  | "page"
-                  | "previous"
-                  | "next"
-              ) {
-                case "spawn": {
-                  const notification = new Notification();
-                  notification.type = NotificationType.ReviewTime;
-                  notification.data = {
-                    userId: user.id,
-                    message: "Testify notification",
-                    alwaysUpdate: false,
-                    updatedNow: false,
-                  };
-
-                  await notification.save();
-
-                  const spawn = new Spawn();
-                  spawn.uuid = notification.uuid;
-                  spawn.at = Date.now();
-                  spawn.during = 1000 * 60 * 60 * 6;
-                  spawn.flashcardIds = [];
-                  spawn.platform = "discord";
-                  spawn.userId = user.id;
-                  await spawn.initialize();
-                  await spawn.save();
-                  await spawn.ask();
-                  break;
-                }
-                case "dictionary": {
-                  await defer(interaction);
-
-                  const dictionaryPortal = new DictionaryPortalAtDiscord(
-                    dictionary,
-                    interaction,
-                  );
-                  await dictionaryPortal.initialize(
-                    await User.findOneBy({
-                      discordIDS: interaction.user.id,
-                    }).then((user) => user.id),
-                  );
-
-                  break;
-                }
-
-                case "filter": {
-                  await interaction.editReply({
-                    components: dictionary.buildButtonsUtil(),
-                    embeds: [
-                      embed.setDescription(
-                        text(
-                          "main_menu.filter.doc",
-                          preferences.interfaceLanguage,
-                        ),
-                      ),
-                    ],
-                  });
-                  break;
-                }
-
-                case "frequency":
-                case "dateOfCreation":
-                case "length":
-                case "forgotten":
-                case "polysemitic": {
-                  let value: undefined | boolean =
-                    dictionary.preferences.dictionaryFilters[
-                      int.customId.split(":")[0]
-                    ];
-                  switch (value) {
-                    case true:
-                      value = false;
-                      break;
-                    case false:
-                      value = undefined;
-                      break;
-                    case undefined:
-                      value = true;
-                      break;
-                  }
-                  dictionary.preferences.dictionaryFilters = {
-                    ...dictionary.preferences.dictionaryFilters,
-                    [int.customId.split(":")[0]]: value,
-                  };
-                  await dictionary.syncronize(true);
-                  await interaction.editReply({
-                    content: "",
-                    components: dictionary.buildButtonsUtil(),
-                  });
-                  break;
-                }
-                case "language": {
-                  if (!data) {
-                    const components: ActionRowBuilder<ButtonBuilder>[] = [];
-                    const embeds = [
-                      new EmbedBuilder().setTitle(
-                        text(
-                          "language_switch.title",
-                          preferences.interfaceLanguage,
-                        ),
-                      ),
-                    ];
-                    let row =
-                      new ActionRowBuilder<ButtonBuilder>().addComponents(
-                        new ButtonBuilder()
-                          .setCustomId(`language:create:noneed`)
-                          .setLabel(
-                            text(
-                              "main_menu.language_switch.button_create",
-                              preferences.interfaceLanguage,
-                            ),
-                          )
-                          .setStyle(ButtonStyle.Primary),
-                      );
-
-                    for (let i = 0; i < dictionary.user.languages.length; i++) {
-                      row.addComponents(
-                        new ButtonBuilder()
-                          .setCustomId(
-                            `dictionary:${dictionary.user.languages[i]}`,
-                          )
-                          .setLabel(dictionary.user.languages[i])
-                          .setStyle(ButtonStyle.Success),
-                      );
-                      embeds[0].addFields({
-                        name: dictionary.user.languages[i],
-                        value: text(
-                          "main_menu.language_switch.dictionary_description",
-                          preferences.interfaceLanguage,
-                        ),
-                      });
-                      if (
-                        row.components.length === 5 ||
-                        i === dictionary.user.languages.length - 1
-                      ) {
-                        components.push(row);
-                        row = new ActionRowBuilder<ButtonBuilder>();
-                      }
-                    }
-
-                    await interaction.editReply({
-                      embeds: embeds,
-                      components: components,
-                    });
-                  } else {
-                    await interaction.showModal(
-                      new ModalBuilder()
-                        .setCustomId(`dictionary:newlanguage`)
-                        .setTitle(
-                          text(
-                            "main_menu.language_switch.create_new_language",
-                            preferences.interfaceLanguage,
-                          ),
-                        )
-                        .addComponents(
-                          new ActionRowBuilder<TextInputBuilder>().addComponents(
-                            new TextInputBuilder()
-                              .setCustomId("language")
-                              .setLabel(
-                                text(
-                                  "main_menu.language_switch.name_language",
-                                  preferences.interfaceLanguage,
-                                ),
-                              )
-                              .setStyle(TextInputStyle.Short)
-                              .setRequired(true)
-                              .setMinLength(5)
-                              .setMaxLength(25),
-                          ),
-                        ),
-                    );
-
-                    await interaction
-                      .awaitModalSubmit({
-                        time: dictionary.preferences.idleTimeout,
-                      })
-                      .then(async (int) => {
-                        user.languages.push(
-                          int.fields.getTextInputValue("language"),
-                        );
-                        await user.save();
-                      });
-                  }
-                  break;
-                }
-              }
-            }
-          }
-        });
-      }
-    }
-  }
-
-  if (
-    interaction.isButton() &&
-    interaction.customId.split(":")[0] === "instant"
-  ) {
-    if (interaction.customId.split(":")[1] === "spawn") {
-      const spawn = await Spawn.findOneBy({
-        uuid: interaction.customId.split(":")[2],
-      });
-
-      await spawn.do(
-        1,
-        { platform: "discord", userId: interaction.user.id },
-        "front",
-      );
+        break;
     }
   }
 });
 
 client.on("messageCreate", async (message) => {
-  console.log(message.content);
   if (message.author.bot) return;
   if (!message.content) return;
   switch (message.content) {
     default:
       const user = await User.findOneBy({ discordIDS: message.author.id });
-      console.log(user.reviewing);
       if (user.reviewing) return;
       const preferences = await Preferences.findOneBy({ id: user.id });
 
-      console.log(user.lastAwaited + preferences.idleTimeout > Date.now());
       if (user.lastAwaited + preferences.idleTimeout > Date.now()) return;
 
       const iWord = new WordInteraction(

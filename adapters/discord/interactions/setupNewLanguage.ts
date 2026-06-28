@@ -37,7 +37,7 @@ export async function setupNewLanguage(interaction: ModalSubmitInteraction | But
             if (interaction.customId === "folder:create") {
                 // await createFolder(interaction, dictionary);
             } else if (interaction.customId === "set:create") {
-                await createSet(interaction, dictionary, "");
+                // await createSet(interaction, dictionary, "");
             }
         }
     });

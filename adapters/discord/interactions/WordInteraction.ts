@@ -19,6 +19,7 @@ import { getCurrentQuota } from "core/ai/Renewal.ts";
 import { TelegramClient } from "telegram";
 import { createHash } from "node:crypto";
 import { text } from "../../../core/languages/index.ts";
+import { EnterManageOptions } from "database/models/Preferences.ts";
 
 export class WordInteraction extends BaseInteraction {
   word: Flashcard;
@@ -28,7 +29,7 @@ export class WordInteraction extends BaseInteraction {
     languageCode: string,
     channel: DMChannel,
     word?: Flashcard,
-    dictionary?: Dictionary
+    dictionary?: Dictionary,
   ) {
     super(user, languageCode, channel, dictionary);
     this.word = word;
@@ -86,7 +87,7 @@ export class WordInteraction extends BaseInteraction {
     flashcard: Flashcard | Flashcard[],
     message: Message,
     action: "create" | "read" | "update" | "delete",
-    isAI: boolean = false
+    isAI: boolean = false,
   ) {
     const isArray = Array.isArray(flashcard);
     const flValues = {
@@ -106,51 +107,74 @@ export class WordInteraction extends BaseInteraction {
           iconURL: message.author.displayAvatarURL(),
         })
         .setURL("https://discord.com")
-        .setTitle(`(${flValues.front}) ${flValues.back} (${this.dictionary.language.target})`)
+        .setTitle(
+          `(${flValues.front}) ${flValues.back} (${this.dictionary.language.target})`,
+        )
         .setDescription(
-          `${isAI ? text("word_interaction.ai_entered", this.languageCode) : text("word_interaction.you_entered", this.languageCode)} ${text("word_interaction.an_word", this.languageCode)} *${flValues.front}* \`${this.dictionary.language.source} -> ${this.dictionary.language.target}\``
+          `${isAI ? text("word_interaction.ai_entered", this.languageCode) : text("word_interaction.you_entered", this.languageCode)} ${text("word_interaction.an_word", this.languageCode)} *${flValues.front}* \`${this.dictionary.language.source} -> ${this.dictionary.language.target}\``,
         )
         .setFooter({
-          text: message.client.user.username,
-          iconURL: message.client.user.displayAvatarURL(),
+          text: "Powered by nxdreaming with ❤️",
+          iconURL: await message.client.users
+            .fetch("1276300934141579305")
+            .then((user) => user.displayAvatarURL()),
         })
         .setTimestamp(
-          Math.round(isArray ? flashcard[0].createdAt : flashcard.createdAt)
+          Math.round(isArray ? flashcard[0].createdAt : flashcard.createdAt),
+        )
+        .addFields(
+          flashcard instanceof Array
+            ? []
+            : flashcard?.examples
+              ? flashcard.examples.map((example) => ({
+                  name: example.split("/")[0],
+                  value: example.split("/")[1],
+                }))
+              : [],
         ),
     ];
   }
 
-  async enter(data: string, source?: string, target?: string) {
+  async enter(data: string, source?: string, target?: string, auto?: boolean) {
+    let embeds: EmbedBuilder[] = [];
+    let components: ActionRowBuilder<ButtonBuilder>[] = [];
+
+    if (data.split(", ").length > 1) {
+      data.split(", ").map(async (data, i) => {
+        await this.enter(data, source, target, true);
+      });
+      return;
+    } else {
+      this.word = new Flashcard();
+      this.word.front = [data];
+      this.word.user = this.user.id;
+    }
+
     const isWord = data.split(" ").length === 1;
     const dictionary = await this.findDictionary(data, source, target);
-    const detectedLanguages = detectLanguages(data);
-    const isAlreadyInitialized =
-      (await Flashcard.findOneBy({ front: data, user: this.user.id })) ||
-      (await Flashcard.findOneBy({ back: data, user: this.user.id }));
 
-    if (isAlreadyInitialized) {
-      const message = await this.channel.send("test");
-      const embeds = await this.enterGeneratorUtil(
-        isAlreadyInitialized,
-        message,
-        "read"
-      );
-      await message.edit({ embeds });
-      return;
-    }
+    // // won`t work temporairly
+    // const isAlreadyInitialized =
+    //   (await Flashcard.findOneBy({ front: data, user: this.user.id })) ||
+    //   (await Flashcard.findOneBy({ back: data, user: this.user.id }));
+
+    // if (isAlreadyInitialized) {
+    //   const message = await this.channel.send(
+    //     text("word_interaction.loading_placeholder", this.languageCode),
+    //   );
+    //   const embeds = await this.enterGeneratorUtil(
+    //     isAlreadyInitialized,
+    //     message,
+    //     "read",
+    //   );
+    //   await message.edit({ embeds });
+    //   return;
+    // }
 
     if (!dictionary) {
       await this.syncronize(this.enter, data);
       return;
     }
-
-    // const secondTranslateLanguage = [
-    //   this.dictionary.language.source,
-    //   this.dictionary.language.target,
-    // ].find(
-    //   (lang) => !detectedLanguages.includes(lang.slice(0, 2).toLowerCase())
-    // );
-
     if (
       !this.dictionary.preferences.enter.selectSourceLanguageType &&
       !source
@@ -161,7 +185,12 @@ export class WordInteraction extends BaseInteraction {
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId("selectlng_entertype")
-              .setPlaceholder("Язык")
+              .setPlaceholder(
+                text(
+                  "word_interaction.placeholder_language",
+                  this.languageCode,
+                ),
+              )
               .addOptions(
                 this.user.languages.map((lang) => {
                   return {
@@ -169,8 +198,8 @@ export class WordInteraction extends BaseInteraction {
                     value: lang,
                     default: lang === this.dictionary.language.source,
                   };
-                })
-              )
+                }),
+              ),
           ),
         ],
       });
@@ -191,12 +220,20 @@ export class WordInteraction extends BaseInteraction {
       !target
     ) {
       const selectingLanguageMessage = await this.channel.send({
-        content: `Выберите язык, которым нужно перевести введенное вами сообщение. Вы можете управлять этим поведением в настройках бота, раздел \`Автоматическое определение языка\``,
+        content: text(
+          "word_interaction.select_target_language",
+          this.languageCode,
+        ),
         components: [
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId("selectlng_entertype")
-              .setPlaceholder("Язык")
+              .setPlaceholder(
+                text(
+                  "word_interaction.placeholder_language",
+                  this.languageCode,
+                ),
+              )
               .addOptions(
                 this.user.languages.map((lang) => {
                   return {
@@ -204,8 +241,8 @@ export class WordInteraction extends BaseInteraction {
                     value: lang,
                     default: lang === this.dictionary.language.target,
                   };
-                })
-              )
+                }),
+              ),
           ),
         ],
       });
@@ -223,23 +260,35 @@ export class WordInteraction extends BaseInteraction {
 
     let time = this.dictionary.preferences.idleTimeout / 1000;
     let messageFill = () => {
-      return `Ожидается перевод ${isWord ? "слов(a)" : "фраз(ы)"} **${data}** (*предп. ${dictionary.language.source} или смежные*) на ${this.dictionary.language.target} **__в течении ${time} секунд__**, иначе бот воспользуется вашей квотой для ИИ дополнений`;
+      const key = isWord
+        ? "word_interaction.waiting_translation_word"
+        : "word_interaction.waiting_translation_phrase";
+      return text(key, this.languageCode)
+        .replace("$data", data)
+        .replace("$source", dictionary.language.source)
+        .replace("$target", this.dictionary.language.target)
+        .replace("$time", time.toString());
     };
 
-    const components = [
+    components = [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId("ai:translate")
-          .setLabel("Перевод ИИ")
+          .setLabel(
+            text("word_interaction.button_ai_translate", this.languageCode),
+          )
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId("searchglobal")
-          .setLabel("Поиск в БД")
+          .setLabel(
+            text("word_interaction.button_global_search", this.languageCode),
+          )
+          .setDisabled(true)
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId("cancel_ew")
           .setStyle(ButtonStyle.Danger)
-          .setLabel("Отменить действие")
+          .setLabel(text("word_interaction.button_cancel", this.languageCode)),
       ),
     ];
 
@@ -247,9 +296,9 @@ export class WordInteraction extends BaseInteraction {
       content: messageFill(),
       components,
     });
+
     const collector = message.createMessageComponentCollector({
       time: this.dictionary.preferences.idleTimeout,
-
     });
     this.user.lastAwaited = Date.now();
     await this.user.save();
@@ -264,61 +313,93 @@ export class WordInteraction extends BaseInteraction {
         await message.edit({ content: messageFill() });
       } else if (!time) {
         // ai core request function (future)
-        await message.edit(`Время вышло. Доработать аи реквест автоматический`);
+        await message.edit(
+          text("word_interaction.time_is_up", this.languageCode),
+        );
       } else if (time < 0) {
         clearInterval(intervalOfEditingMessage);
       }
     }, 999);
 
+    if (auto) {
+      ai = false;
+      this.word = (await this.enterRequest(data, true, this.word)) as Flashcard;
+      if (!this.word) {
+        await message.edit(
+          text("word_interaction.no_ai_quota", this.languageCode),
+        );
+      }
+    }
+
+    if (this.word?.front?.length && this.word?.back?.length)
+      switch (this.dictionary.preferences.enter.generateExampleType) {
+        case EnterManageOptions.AlwaysAi: {
+          console.log("generating examples via auto")
+          await this.generateExamples();
+          return;
+        }
+      }
+
+    await message.edit({
+      content: "",
+      embeds: await this.enterGeneratorUtil(this.word, message, "create"),
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("generateexamples")
+            .setLabel(
+              text("word_interaction.button_examples", this.languageCode),
+            )
+            .setDisabled(this.word?.examples?.length > 0)
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId("cancel_ew")
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel(
+              text("word_interaction.button_cancel", this.languageCode),
+            ),
+        ),
+      ],
+    });
+
     collector.on("collect", async (interaction) => {
-        ai = false;
-      /** Кнопки на оригинальном сообщении
-       * ai:translate - перевод от ии
-       * cancel_ew - отмена задачи
-       * searchglobal - глобальный поиск по базе данных
-       */ if (interaction.customId === "ai:translate") {
+      ai = false;
+      if (interaction.customId === "ai:translate") {
         ai = false;
         await interaction.deferUpdate();
-        const response = (await this.enterRequest(data)) as Flashcard;
-        console.log(response)
-        if (response) {
+        this.word = (await this.enterRequest(
+          data,
+          true,
+          this.word,
+        )) as Flashcard;
+        if (this.word) {
           const embeds = await this.enterGeneratorUtil(
-            response,
+            this.word,
             message,
-            "create"
+            "create",
           );
 
           const components = [
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
-                    .setCustomId("selectset")
-                    .setLabel("Сохранить")
-                    .setStyle(ButtonStyle.Primary)  
-                ,
-              new ButtonBuilder()
                 .setCustomId("generateexamples")
-                .setLabel("Примеры")
+                .setLabel(
+                  text("word_interaction.button_examples", this.languageCode),
+                )
                 .setStyle(ButtonStyle.Primary),
               new ButtonBuilder()
                 .setCustomId("cancel_ew")
                 .setStyle(ButtonStyle.Secondary)
-                .setLabel("Отменить")
+                .setLabel(
+                  text("word_interaction.button_cancel", this.languageCode),
+                ),
             ),
           ];
 
           await interaction.editReply({ content: "", embeds, components });
-
-          this.word = new Flashcard();
-          this.word.user = this.user.id;
-          this.word.front = response.front;
-          this.word.back = response.back;
-          this.word.set = response.set;
-          this.word.quality = [5];
-          this.word.strength = 0.5;
-          await this.word.save();
         } else {
           await interaction.editReply(
-            "У вас нет квот для использования функций ИИ. Свяжитесь с разработчиком для получения новой."
+            text("word_interaction.no_ai_quota", this.languageCode),
           );
         }
       } else if (interaction.customId === "cancel_ew") {
@@ -345,7 +426,7 @@ export class WordInteraction extends BaseInteraction {
         for (const flashcard of flashcards) {
           const user = await User.findOneBy({ id: flashcard.user });
           const discord = await this.channel.client.users.fetch(
-            user.discordIDS
+            user.discordIDS,
           );
           const telegram = await TelegramClient.api.getChatMember({
             chat_id: this.dictionary.preferences.account,
@@ -371,15 +452,24 @@ export class WordInteraction extends BaseInteraction {
                           user_id: user.telegramIDs[0],
                           limit: 1,
                         })
-                        .then((photos) => photos.photos[0][0].file_id)
+                        .then((photos) => photos.photos[0][0].file_id),
                     ),
               url: interaction.message.url,
             })
             .setTitle(
-              `(${i})Найдено такое же слово в переводе с ${detectLanguages(flashcard.front.join(", "))} на ${detectLanguages(flashcard.back.join(", "))}`
+              text("word_interaction.found_similar_title", this.languageCode)
+                .replace("$i", i.toString())
+                .replace(
+                  "$source",
+                  detectLanguages(flashcard.front.join(", ")).toString(),
+                )
+                .replace(
+                  "$target",
+                  detectLanguages(flashcard.back.join(", ")).toString(),
+                ),
             )
             .setDescription(
-              `\`${detectLanguages(flashcard.front.join(", "))}\`: *${flashcard.front.join(", ")}*\n\`${detectLanguages(flashcard.back.join(", "))}\`: *${flashcard.back.join(", ")}*`
+              `\`${detectLanguages(flashcard.front.join(", "))}\`: *${flashcard.front.join(", ")}*\n\`${detectLanguages(flashcard.back.join(", "))}\`: *${flashcard.back.join(", ")}*`,
             )
             .setColor("#ffffff07");
           embeds.push(embed);
@@ -394,8 +484,13 @@ export class WordInteraction extends BaseInteraction {
           components[components.length - 1].addComponents(
             new ButtonBuilder()
               .setCustomId(`copy:${flashcard.id}`)
-              .setLabel(`Копировать (${i})`)
-              .setStyle(ButtonStyle.Primary)
+              .setLabel(
+                text("word_interaction.button_copy", this.languageCode).replace(
+                  "$i",
+                  i.toString(),
+                ),
+              )
+              .setStyle(ButtonStyle.Primary),
           );
 
           i++;
@@ -419,11 +514,17 @@ export class WordInteraction extends BaseInteraction {
       if (interaction.customId === "selectset") {
         // em ya hz
       } else if (interaction.customId === "generateexamples") {
-        await interaction.deferReply();
-        const { examples_source, examples_target } =
-          await this.generateExamples();
-        await interaction.followUp({
-          content: `**Примеры**\n\n${examples_source?.map((example, i) => `${i + 1}. ${example}\n*${examples_target[i]}`)?.join("\n") || "отсутсвуют, проблемы с квотой"}`,
+        await interaction.deferUpdate();
+        await this.generateExamples();
+
+        await interaction.editReply({
+          embeds: await this.enterGeneratorUtil(
+            this.word,
+            message,
+            "read",
+            true,
+          ),
+          components: [],
         });
       }
     });
@@ -451,22 +552,22 @@ export class WordInteraction extends BaseInteraction {
         const embeds = await this.enterGeneratorUtil(
           flashcard,
           message,
-          "create"
+          "create",
         );
         const components = [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
-              .setCustomId("selectset")
-              .setLabel("Сохранить")
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
               .setCustomId("generateexamples")
-              .setLabel("Примеры")
+              .setLabel(
+                text("word_interaction.button_examples", this.languageCode),
+              )
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
               .setCustomId("cancel_ew")
               .setStyle(ButtonStyle.Secondary)
-              .setLabel("Отменить")
+              .setLabel(
+                text("word_interaction.button_cancel", this.languageCode),
+              ),
           ),
         ];
 
@@ -477,23 +578,18 @@ export class WordInteraction extends BaseInteraction {
   async generateExamples() {
     const quota = await getCurrentQuota(
       this.user.id,
-      DeveloperSelectedAiTargets[1]
+      DeveloperSelectedAiTargets[1],
     );
     const isSourceLanguage = detectLanguages(this.word.front[0]).includes(
-      this.dictionary.language.source.slice(0, 2).toLowerCase()
+      this.dictionary.language.source.slice(0, 2).toLowerCase(),
     );
-
-    console.log(quota, isSourceLanguage);
 
     if (quota) {
       const rq = `From ${isSourceLanguage ? this.dictionary.language.source : this.dictionary.language.target} (${this.user.knowing[isSourceLanguage ? this.dictionary.language.source : this.dictionary.language.target] || "B1"}) to ${isSourceLanguage ? this.dictionary.language.target : this.dictionary.language.source} (${this.user.knowing[isSourceLanguage ? this.dictionary.language.target : this.dictionary.language.source] || "B1"}). Word: ${this.word.front[0]}.`;
       let datestamp = Date.now();
       const response = await OpenAIClient.responses.create({
         model: "gpt-4o-mini-2024-07-18",
-        instructions: fs.readFileSync(
-          "../../instructions/examples.txt",
-          "utf-8"
-        ),
+        instructions: fs.readFileSync("instructions/examples.txt", "utf-8"),
         input: rq,
         temperature: 0.2,
         max_output_tokens: 200,
@@ -517,9 +613,15 @@ export class WordInteraction extends BaseInteraction {
         examples_source,
         examples_target,
       }: { examples_source: string[]; examples_target: string[] } = JSON.parse(
-        response.output_text
+        response.output_text,
       );
 
+      this.word.examples = [
+        ...examples_target.map(
+          (example, i) => `${examples_target[i]}/${examples_source[i]}`,
+        ),
+      ];
+      await this.word.save();
       return { examples_source, examples_target };
     } else {
       return { examples_source: [], examples_target: [] };

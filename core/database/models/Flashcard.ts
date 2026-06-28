@@ -62,6 +62,10 @@ class Flashcard extends BaseEntity {
   @Column("numeric", { nullable: false })
   user: number;
 
+  @Column("text", { array: true, nullable: true, default: [] })
+  // (target language) / (source language)
+  examples: string[]
+
   async review(c: boolean, p: number, t: number) {
     /**
      * c - правильность ответа
