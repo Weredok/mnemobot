@@ -1,0 +1,11 @@
+{
+  "entryPoints": ["adapters", "core"], 
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "name": "Моя крута дока",
+  "readme": "README.md",
+  "theme": "typedoc-github-theme",
+  "json": "docs/docs.json",
+  "excludePrivate": true,
+  "excludeProtected": true
+}
