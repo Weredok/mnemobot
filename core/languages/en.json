@@ -64,7 +64,13 @@
     "spawn_button": "Spawn",
     "settings": {
       "title": "Setting up the bot",
-      "change_user_info": "Change User Info",
+      "description": "Username: $username\nID: $id\nAnonymous?: $anonymous\nQuota status: $quota_status",
+      "modify_algorithm": "Modify Algorithm",
+      "change_user_info_modal": "Change User Info",
+      "change_user_info_username": "Your username",
+      "change_user_info_password": "Your password",
+      "change_user_info_tgs": "Unfortunately, this function is not compatible with Telegram like with Discord. Type these commands for change needen option:\n\n<code>/setusername [new username, 3-24 chars]</code>\n<code>/setpassword [new password, 8-24 chars]</code>\n\n<i>You can also change your username and password in the \"Settings\" section of the bot in Discord.</i>",
+      "change_user_info_success": "Your username and password have been changed successfully.",
       "preferences": "Preferences",
       "quotes": "Quotes"
     },
@@ -130,6 +136,19 @@
     "ai_entered": "AI entered",
     "you_entered": "You entered",
     "an_word": "a word (or words) in your dictionary",
-    "select_by_unidf": "Select source-languages, via which we need identify this message. You can select how it will work in settings, \"Autoidentify language\""
+    "select_by_unidf": "Select source-languages, via which we need identify this message. You can select how it will work in settings, \"Autoidentify language\"",
+    "select_target_language": "Select the language to translate your message into. You can manage this behavior in the bot settings under `Auto-detect language`",
+    "placeholder_language": "Language",
+    "waiting_translation_word": "Waiting for the translation of the word **$data** (*est. $source or similar*) to $target **__within $time seconds__**, otherwise the bot will use your AI quota",
+    "waiting_translation_phrase": "Waiting for the translation of the phrase **$data** (*est. $source or similar*) to $target **__within $time seconds__**, otherwise the bot will use your AI quota",
+    "button_ai_translate": "AI Translate",
+    "button_global_search": "Global Search",
+    "button_cancel": "Cancel",
+    "button_examples": "Examples",
+    "button_copy": "Copy ($i)",
+    "time_is_up": "Time is up. AI request fallback needs to be implemented.",
+    "no_ai_quota": "You have no quota left for AI features. Please contact the developer for more.",
+    "found_similar_title": "($i) Found the exact word translated from $source to $target",
+    "loading_placeholder": "..."
   }
 }
