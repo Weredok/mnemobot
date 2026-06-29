@@ -10,7 +10,7 @@ import {
 import { text } from "../../languages/index.ts";
 import { MenuHelper } from "./MenuHelper.ts";
 import { DiscordClient } from "discord";
-import { Flashcard } from "database";
+import { ExpiryPolicy, Flashcard, Notification, NotificationType, Spawn } from "database";
 import { InlineKeyboard } from "puregram";
 
 export enum Location {
@@ -30,7 +30,16 @@ export enum Location {
   History = "buttons_reference.history",
 
   Feedback = "buttons_reference.feedback",
+
   Spawn = "buttons_reference.spawn",
+  SpawnFilterQualityASC = "main_menu.spawn.quality_asc",
+  SpawnFilterStrengthASC = "main_menu.spawn.strength_asc",
+  SpawnFilterNewestFirst = "main_menu.spawn.newest_first",
+  SpawnFilterOldestFirst = "main_menu.spawn.oldest_first",
+  SpawnFilterReviewCount = "main_menu.spawn.review_count",
+  SpawnFilterRandom = "main_menu.spawn.random",
+  SpawnFilterConfirm = "main_menu.spawn.confirm",
+  SpawnFilterConfirmByEnteringCount = "main_menu.spawn.confirm_by_entering_count",
 
   Registration = "registration.title",
   RegistrationPreferences = "registration.pref_settings",
@@ -45,7 +54,6 @@ export class StartMenu extends MenuHelper {
   current_location: Location;
   previous_location: Location;
   featured_location: Location;
-
   constructor({ user, userDataInitialization, platform }: MenuHelper) {
     super(user, userDataInitialization, platform);
     this.current_location = Location.Home;
@@ -659,9 +667,8 @@ export class StartMenu extends MenuHelper {
               text: text("main_menu.home", this.preferences.interfaceLanguage),
               payload: "main_menu.home",
             }),
-          ])
+          ]);
 
-          
           return {
             content: "not implemented yet, waiting release in discord embeds.",
             replyMarkup,
@@ -673,7 +680,130 @@ export class StartMenu extends MenuHelper {
       case Location.Quotes:
       case Location.History:
       case Location.Feedback:
-      case Location.Spawn:
+     case Location.SpawnFilterQualityASC:
+      case Location.SpawnFilterStrengthASC:
+      case Location.SpawnFilterNewestFirst:
+      case Location.SpawnFilterOldestFirst:
+      case Location.SpawnFilterReviewCount:
+      case Location.SpawnFilterRandom: {
+        if (this.preferences.review.filters.includes(this.current_location)) {
+          this.preferences.review.filters = this.preferences.review.filters.filter(
+            (f) => f !== this.current_location,
+          );
+        } else {
+          this.preferences.review.filters.push(this.current_location);
+        }
+
+        if (
+          this.preferences.review.filters.includes(Location.SpawnFilterNewestFirst) &&
+          this.preferences.review.filters.includes(Location.SpawnFilterOldestFirst)
+        ) {
+          const targetToRemove =
+            this.current_location === Location.SpawnFilterNewestFirst
+              ? Location.SpawnFilterOldestFirst
+              : Location.SpawnFilterNewestFirst;
+
+          this.preferences.review.filters = this.preferences.review.filters.filter(
+            (f) => f !== targetToRemove,
+          );
+        }
+
+        if (this.preferences.review.filters.includes(Location.SpawnFilterRandom)) {
+          this.preferences.review.filters = [Location.SpawnFilterRandom];
+        }
+      }
+      case Location.Spawn: {
+        const getFilterStyle = (loc: Location) =>
+          this.preferences.review.filters.includes(loc)
+            ? ButtonStyle.Primary
+            : ButtonStyle.Secondary;
+
+        if (this.platform === "discord") {
+          const content = text("main_menu.spawn.description", this.preferences.interfaceLanguage);
+
+          components = [
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder()
+                .setCustomId(Location.SpawnFilterQualityASC)
+                .setLabel(text(Location.SpawnFilterQualityASC, this.preferences.interfaceLanguage))
+                .setStyle(getFilterStyle(Location.SpawnFilterQualityASC))
+                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+              new ButtonBuilder()
+                .setCustomId(Location.SpawnFilterStrengthASC)
+                .setLabel(text(Location.SpawnFilterStrengthASC, this.preferences.interfaceLanguage))
+                .setStyle(getFilterStyle(Location.SpawnFilterStrengthASC))
+                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+              new ButtonBuilder()
+                .setCustomId(Location.SpawnFilterNewestFirst)
+                .setLabel(text(Location.SpawnFilterNewestFirst, this.preferences.interfaceLanguage))
+                .setStyle(getFilterStyle(Location.SpawnFilterNewestFirst))
+                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+            ),
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder()
+                .setCustomId(Location.SpawnFilterOldestFirst)
+                .setLabel(text(Location.SpawnFilterOldestFirst, this.preferences.interfaceLanguage))
+                .setStyle(getFilterStyle(Location.SpawnFilterOldestFirst))
+                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+              new ButtonBuilder()
+                .setCustomId(Location.SpawnFilterReviewCount)
+                .setLabel(text(Location.SpawnFilterReviewCount, this.preferences.interfaceLanguage))
+                .setStyle(getFilterStyle(Location.SpawnFilterReviewCount))
+                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+              new ButtonBuilder()
+                .setCustomId(Location.SpawnFilterRandom)
+                .setLabel(text(Location.SpawnFilterRandom, this.preferences.interfaceLanguage))
+                .setStyle(getFilterStyle(Location.SpawnFilterRandom)),
+              new ButtonBuilder()
+                .setCustomId(this.preferences.review.filters.includes(Location.SpawnFilterReviewCount) ? Location.SpawnFilterConfirmByEnteringCount : Location.SpawnFilterConfirm)
+                .setLabel(text(this.preferences.review.filters.includes(Location.SpawnFilterReviewCount) ? Location.SpawnFilterConfirmByEnteringCount : Location.SpawnFilterConfirm, this.preferences.interfaceLanguage))
+                .setStyle(ButtonStyle.Success),
+            ),
+          ];
+
+          await this.preferences.save();
+
+          return { embeds: [], components, content };
+        }
+        break;
+      };
+
+      case Location.SpawnFilterConfirm:
+       const spawn = new Spawn();
+       spawn.userId = this.user.id;
+       spawn.platform = this.platform;
+       spawn.during = this.preferences.idleTimeout;
+       spawn.flashcards =  await this.user.getFlashcards({
+        userId: this.user.id,
+        sortBy: this.preferences.review.filters,
+       });
+       await spawn.initialize();
+
+       const notification = new Notification();
+       notification.type = NotificationType.SpawnViaMenu;
+       notification.active = true;
+       notification.expiryPolicy = ExpiryPolicy.Discard;
+       notification.data = {
+        userId: this.user.id,
+        deleteAfter: this.preferences.idleTimeout,
+        updatedNow: false,
+        message: "Custom session.",
+        alwaysUpdate: false,
+        buttons: [
+          {
+            name: `Review ${process.env.version}`,
+            id: `instant:spawn:${spawn.uuid}:go`,
+          },
+        ],
+       };
+
+       notification.uuid = spawn.uuid;
+       await notification.save();
+      //  await notification.send();
+
+       await spawn.do(1, { platform: this.platform, userId: this.user.discordIDS }, this.preferences.review.side);
+       return { embeds: [], components: [], content: "Custom session was created successfully." };
+
       case Location.Registration:
       case Location.RegistrationPreferences:
       case Location.CreateFolder:

@@ -9,7 +9,7 @@ import { Log } from "./models/Log.ts";
 import { Preferences } from "./models/Preferences.ts";
 import fs from "fs";    
 import { Dictionary } from "core";
-import { Notification, NotificationType } from "./models/Notification.ts";
+import { Notification, NotificationType, ExpiryPolicy } from "./models/Notification.ts";
 import { Spawn } from "./models/Spawn.ts";
 
 const datasource = new DataSource({
@@ -26,6 +26,6 @@ const datasource = new DataSource({
 
 await datasource.initialize()
 export { datasource }
-export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification, NotificationType,Spawn }
+export { Flashcard, Session, User, Set, Folder, Preferences, CEFR , Notification, NotificationType,Spawn, ExpiryPolicy }
 export type { AiUsageQuota, AiUsageRecord } from "./models/User.ts";
 export type { ResponseInfo }

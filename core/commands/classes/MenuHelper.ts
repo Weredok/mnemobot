@@ -1,7 +1,7 @@
 import { Preferences, User } from "database";
 
 export class MenuHelper {
-  platform: "discord" | "telegram" | "none"
+  platform: "discord" | "telegram"
   user: User;
   preferences: Preferences;
   userDataInitialization?: {
@@ -12,7 +12,7 @@ export class MenuHelper {
 
   constructor(
     user: User,
-    UDI?: { userId?: number; discordUserId?: string; telegramUserId?: number }, platform?: "discord" | "telegram" | "none"
+    UDI?: { userId?: number; discordUserId?: string; telegramUserId?: number }, platform?: "discord" | "telegram"
   ) {
     this.user = user;
     this.userDataInitialization = UDI;

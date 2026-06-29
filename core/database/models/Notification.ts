@@ -25,6 +25,13 @@ export enum NotificationType {
   News,
   Error,
   Payment,
+  SpawnViaMenu
+}
+
+export enum ExpiryPolicy {
+  SendImmediately, // Отправить сразу при запуске бота (даже если просрочено)
+  Discard, // Удалить уведомление, если оно просрочено (например, "напомнить в 18:00")
+  Reschedule, // Перенести на завтра на то же время
 }
 
 interface Button {
@@ -46,6 +53,9 @@ export class Notification extends BaseEntity {
   @Column("boolean", { default: true })
   active: boolean;
 
+  @Column("simple-enum", { enum: ExpiryPolicy, default: ExpiryPolicy.Discard })
+  expiryPolicy: ExpiryPolicy;
+  
   /** Данные уведомления */
   @Column("simple-json")
   data: {
@@ -53,6 +63,7 @@ export class Notification extends BaseEntity {
     userId: number;
     /** Текстовое сообщение */
     message?: string;
+
     /**
      * Кнопки, которые нужно добавлять к сообщению.
      *
@@ -241,7 +252,7 @@ export class Notification extends BaseEntity {
   }
 
   async executeTimers() {
-   this.data = (await Notification.findOneBy({ uuid: this.uuid })).data;
+    this.data = (await Notification.findOneBy({ uuid: this.uuid })).data;
 
     if (this.data.editAfter) {
       const rows = this.buildButtonsArray(
@@ -290,37 +301,37 @@ export class Notification extends BaseEntity {
   }
 
   async deleteTimers() {
-   this.data = (await Notification.findOneBy({ uuid: this.uuid })).data;
+    this.data = (await Notification.findOneBy({ uuid: this.uuid })).data;
     console.log(this.data, "deleteTimers");
     setTimeout(
       async () => {
         try {
-        this.active = false;
-        await this.save();
+          this.active = false;
+          await this.save();
 
-        if (this.data?.telegramMessageIDs?.length) {
-          for (const message_data of this.data.telegramMessageIDs) {
-            await TelegramClient.api.deleteMessage({
-              chat_id: message_data.userID,
-              message_id: message_data.messageID,
-            });
+          if (this.data?.telegramMessageIDs?.length) {
+            for (const message_data of this.data.telegramMessageIDs) {
+              await TelegramClient.api.deleteMessage({
+                chat_id: message_data.userID,
+                message_id: message_data.messageID,
+              });
+            }
           }
-        }
 
-        if (this.data?.discordMessageIDs?.length) {
-          for (const message_data of this.data.discordMessageIDs) {
-            await (
+          if (this.data?.discordMessageIDs?.length) {
+            for (const message_data of this.data.discordMessageIDs) {
               await (
-                (await DiscordClient.channels.fetch(
-                  message_data.channel_id,
-                )) as DMChannel
-              ).messages.fetch(message_data.messageID)
-            ).delete();
+                await (
+                  (await DiscordClient.channels.fetch(
+                    message_data.channel_id,
+                  )) as DMChannel
+                ).messages.fetch(message_data.messageID)
+              ).delete();
+            }
           }
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
-      }
       },
       this.data.deleteAfter + this.data.datestamp - Date.now() || 1000,
     );
