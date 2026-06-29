@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, ForeignKey, PrimaryColumn } from "typeorm";
 import { User } from "./User.ts";
 import { type DictionaryFilters } from "core";
+import { Location } from "commands/classes/StartMenu.ts";
 
 interface ReviewOptions {
   // Сторона карточки для повторения
@@ -28,6 +29,7 @@ interface ReviewOptions {
     // Множитель повторения SM-2 (2.5 by default)
     sm2Interval: number;
   };
+  filters?: Array<Location>;
 }
 
 // Настройки поведения системы, действующие во время добавления или массовой загрузки в словарь
@@ -65,7 +67,7 @@ export enum EnterManageOptions {
   Never,
   // Отключено
   Disabled,
-}
+};
 
 @Entity()
 class Preferences extends BaseEntity {
@@ -73,6 +75,21 @@ class Preferences extends BaseEntity {
   @PrimaryColumn("integer")
   // Айди пользователя, чьи настройки сохраняются
   id: number;
+
+  // Смещение часового пояса пользователя относительно UTC в минутах. 
+  // Например, для Киева (UTC+3) это будет 180.
+  @Column("int", { default: 0 })
+  utcOffset: number;
+
+  // Предпочитаемое локальное время уведомления в минутах от начала дня.
+  // Например, 10:30 утра = 10 * 60 + 30 = 630.
+  @Column("int", { default: 600 }) // По умолчанию 10:00
+  notificationTimeMinutes: number;
+
+  // Unix timestamp (в миллисекундах) последней успешной генерации/отправки.
+  // Это ТА САМАЯ защита от даунтаймов.
+  @Column("numeric", { default: 0 })
+  lastDailyDispatchAt: number;
 
   @Column("text")
   // Язык
@@ -84,7 +101,7 @@ class Preferences extends BaseEntity {
 
   @Column("text", { default: "Telegram" })
   // Предпочитаемая платформа
-  platform: "telegram" | "discord" | "none";
+  platform: "telegram" | "discord" ;
 
   @Column("text", { default: "None" })
   // Предпочтения по платформе (аккаунт)
@@ -157,6 +174,7 @@ class Preferences extends BaseEntity {
         delete: false,
         time: 10000,
       },
+      filters: [],
     };
     this.lastTarget = "English";
     this.enter = {
