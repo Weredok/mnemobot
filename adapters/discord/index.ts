@@ -8,7 +8,9 @@ import {
   User,
 } from "database";
 import {
+  ActionRow,
   ActionRowBuilder,
+  ActionRowComponent,
   ActivityType,
   ButtonBuilder,
   ButtonStyle,
@@ -16,12 +18,14 @@ import {
   ComponentType,
   DMChannel,
   EmbedBuilder,
+  MessageActionRowComponent,
   ModalBuilder,
   Partials,
   StringSelectMenuBuilder,
   TextChannel,
   TextInputBuilder,
   TextInputStyle,
+  TopLevelComponent,
 } from "discord.js";
 import { ILike } from "typeorm";
 import { defer, Dictionary } from "core";
@@ -44,12 +48,12 @@ const client = new Client({
   presence: {
     activities: [
       {
-        name: `v${process.env.version} | /start | ❤️`,
+        name: `v${process.env.version} | /start`,
         state: "discord",
         type: ActivityType.Competing,
       },
     ],
-    status: "dnd",
+    status: "idle",
   },
 });
 
@@ -117,6 +121,7 @@ client.on("interactionCreate", async (interaction) => {
       },
       "discord",
     );
+
     const startmenu = new StartMenu(mh);
     await startmenu.initialize();
     const { embeds, components, content, modal } = await startmenu.locate(
@@ -125,7 +130,7 @@ client.on("interactionCreate", async (interaction) => {
 
     console.log(interaction.customId, "trig");
 
-    if ((embeds.length || components.length) && !modal) {
+    if ((embeds.length || components.length || content) && !modal) {
       await interaction.editReply({
         embeds: embeds ? embeds : [],
         components: components ? components : [],

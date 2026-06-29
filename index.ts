@@ -1,4 +1,5 @@
 import "./setup.ts";
+import { GlobalWorker } from "core/jobs/GlobalWorker.ts";
 import { renewal } from "core/ai/Renewal.ts";
 import { CEFR, datasource, Flashcard, Preferences, Set, User } from "database";
 import { DiscordClient } from "discord";
@@ -86,3 +87,8 @@ console.log(`[telegram]: Logged in as ${TelegramClient.bot.username}`);
 console.log(
   `[database:${datasource.options.type}]: Database ${(await datasource.query("SELECT current_database();"))[0].current_database} connected`,
 );
+
+
+GlobalWorker.start().then(() => {
+  console.log("[jobs]: Global worker started");
+});

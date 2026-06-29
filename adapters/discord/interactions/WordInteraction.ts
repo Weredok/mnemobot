@@ -1,4 +1,4 @@
-import { Flashcard, Preferences, User } from "database";
+import { datasource, Flashcard, Preferences, User } from "database";
 import { BaseInteraction } from "./BaseInteraction.ts";
 import { detectLanguages, Dictionary, OpenAIClient } from "core";
 import {
@@ -140,9 +140,13 @@ export class WordInteraction extends BaseInteraction {
     let components: ActionRowBuilder<ButtonBuilder>[] = [];
 
     if (data.split(", ").length > 1) {
-      data.split(", ").map(async (data, i) => {
-        await this.enter(data, source, target, true);
-      });
+    //  await data.split(", ").map(async (data) => {
+    //     await this.enter(data, source, target, true);
+    //   });
+
+    for(const data_ of data.split(", ")) {
+      await this.enter(data_, source, target, true);
+    };
       return;
     } else {
       this.word = new Flashcard();
@@ -293,8 +297,8 @@ export class WordInteraction extends BaseInteraction {
     ];
 
     const message = await this.channel.send({
-      content: messageFill(),
-      components,
+      content: !auto ? messageFill() : `Loading ${this.word.front.toString()}...`,
+      components: !auto ? components : [],
     });
 
     const collector = message.createMessageComponentCollector({
@@ -310,7 +314,8 @@ export class WordInteraction extends BaseInteraction {
       time -= 1;
 
       if (time > 0) {
-        await message.edit({ content: messageFill() });
+        // ping 
+        await message.edit({ content: !auto ? messageFill() : `Loading ${this.word.front.toString()}...` });
       } else if (!time) {
         // ai core request function (future)
         await message.edit(
@@ -343,7 +348,7 @@ export class WordInteraction extends BaseInteraction {
     await message.edit({
       content: "",
       embeds: await this.enterGeneratorUtil(this.word, message, "create"),
-      components: [
+      components: !auto ? [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId("generateexamples")
@@ -359,7 +364,7 @@ export class WordInteraction extends BaseInteraction {
               text("word_interaction.button_cancel", this.languageCode),
             ),
         ),
-      ],
+      ] : [],
     });
 
     collector.on("collect", async (interaction) => {
@@ -396,7 +401,7 @@ export class WordInteraction extends BaseInteraction {
             ),
           ];
 
-          await interaction.editReply({ content: "", embeds, components });
+          await interaction.editReply({ content: "", embeds, components: !auto ? components : [] });
         } else {
           await interaction.editReply(
             text("word_interaction.no_ai_quota", this.languageCode),
@@ -529,7 +534,7 @@ export class WordInteraction extends BaseInteraction {
       }
     });
 
-    await this.channel
+    !auto ? await this.channel
       .awaitMessages({
         time: this.dictionary.preferences.idleTimeout,
         filter: (message) => message.author.id === this.user.discordIDS,
@@ -537,11 +542,11 @@ export class WordInteraction extends BaseInteraction {
       })
       .then(async (messages) => {
         const msg = messages.first();
-        const data_ = msg.content;
+        const data_ = msg?.content;
         const flashcard = await this.enterRequest([
           ...(data.includes(", ") ? data.split(", ") : data),
           ...data_.split(", "),
-        ]);
+        ]) 
 
         // Save/cancel
         this.user.lastAwaited = 0;
@@ -571,8 +576,8 @@ export class WordInteraction extends BaseInteraction {
           ),
         ];
 
-        await message.edit({ embeds, components });
-      });
+        await message.edit({ embeds, components: !auto ? components : [] });
+      }) : null;
   }
 
   async generateExamples() {
