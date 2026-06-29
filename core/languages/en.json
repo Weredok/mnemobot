@@ -79,6 +79,17 @@
       "change_knowing_languages": "Change knowing languages",
       "add_new_language": "Add new language",
       "read_about_interaction_bot": "Read about interaction bot"
+    },
+    
+  "spawn": {
+      "description": "Select filters to spawn needen flashcards.",
+      "quality_asc": "Quality",
+      "strength_asc": "Strength",
+      "newest_first": "Newest",
+      "oldest_first": "Oldest",
+      "review_count": "Count",
+      "random": "Random",
+      "confirm": "Confirm"
     }
   },
   "base_interaction": {
