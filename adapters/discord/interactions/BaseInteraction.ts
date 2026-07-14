@@ -21,7 +21,8 @@ import { text } from "../../../core/languages/index.ts";
  * Класс базового взаимодействия пользователя с словарём
  */
 export class BaseInteraction {
-  user: User;
+  
+    user: User;
   channel: DMChannel;
   dictionary?: Dictionary;
   languageCode: string;

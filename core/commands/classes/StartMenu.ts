@@ -10,7 +10,13 @@ import {
 import { text } from "../../languages/index.ts";
 import { MenuHelper } from "./MenuHelper.ts";
 import { DiscordClient } from "discord";
-import { ExpiryPolicy, Flashcard, Notification, NotificationType, Spawn } from "database";
+import {
+  ExpiryPolicy,
+  Flashcard,
+  Notification,
+  NotificationType,
+  Spawn,
+} from "database";
 import { InlineKeyboard } from "puregram";
 
 export enum Location {
@@ -680,83 +686,158 @@ export class StartMenu extends MenuHelper {
       case Location.Quotes:
       case Location.History:
       case Location.Feedback:
-     case Location.SpawnFilterQualityASC:
+      case Location.SpawnFilterQualityASC:
       case Location.SpawnFilterStrengthASC:
       case Location.SpawnFilterNewestFirst:
       case Location.SpawnFilterOldestFirst:
       case Location.SpawnFilterReviewCount:
       case Location.SpawnFilterRandom: {
         if (this.preferences.review.filters.includes(this.current_location)) {
-          this.preferences.review.filters = this.preferences.review.filters.filter(
-            (f) => f !== this.current_location,
-          );
+          this.preferences.review.filters =
+            this.preferences.review.filters.filter(
+              (f) => f !== this.current_location,
+            );
         } else {
           this.preferences.review.filters.push(this.current_location);
         }
 
         if (
-          this.preferences.review.filters.includes(Location.SpawnFilterNewestFirst) &&
-          this.preferences.review.filters.includes(Location.SpawnFilterOldestFirst)
+          this.preferences.review.filters.includes(
+            Location.SpawnFilterNewestFirst,
+          ) &&
+          this.preferences.review.filters.includes(
+            Location.SpawnFilterOldestFirst,
+          )
         ) {
           const targetToRemove =
             this.current_location === Location.SpawnFilterNewestFirst
               ? Location.SpawnFilterOldestFirst
               : Location.SpawnFilterNewestFirst;
 
-          this.preferences.review.filters = this.preferences.review.filters.filter(
-            (f) => f !== targetToRemove,
-          );
+          this.preferences.review.filters =
+            this.preferences.review.filters.filter((f) => f !== targetToRemove);
         }
 
-        if (this.preferences.review.filters.includes(Location.SpawnFilterRandom)) {
+        if (
+          this.preferences.review.filters.includes(Location.SpawnFilterRandom)
+        ) {
           this.preferences.review.filters = [Location.SpawnFilterRandom];
         }
       }
       case Location.Spawn: {
+        console.log(this.platform)
         const getFilterStyle = (loc: Location) =>
           this.preferences.review.filters.includes(loc)
             ? ButtonStyle.Primary
             : ButtonStyle.Secondary;
 
         if (this.platform === "discord") {
-          const content = text("main_menu.spawn.description", this.preferences.interfaceLanguage);
+          const content = text(
+            "main_menu.spawn.description",
+            this.preferences.interfaceLanguage,
+          );
 
           components = [
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
                 .setCustomId(Location.SpawnFilterQualityASC)
-                .setLabel(text(Location.SpawnFilterQualityASC, this.preferences.interfaceLanguage))
+                .setLabel(
+                  text(
+                    Location.SpawnFilterQualityASC,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(getFilterStyle(Location.SpawnFilterQualityASC))
-                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+                .setDisabled(
+                  this.preferences.review.filters.includes(
+                    Location.SpawnFilterRandom,
+                  ),
+                ),
               new ButtonBuilder()
                 .setCustomId(Location.SpawnFilterStrengthASC)
-                .setLabel(text(Location.SpawnFilterStrengthASC, this.preferences.interfaceLanguage))
+                .setLabel(
+                  text(
+                    Location.SpawnFilterStrengthASC,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(getFilterStyle(Location.SpawnFilterStrengthASC))
-                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+                .setDisabled(
+                  this.preferences.review.filters.includes(
+                    Location.SpawnFilterRandom,
+                  ),
+                ),
               new ButtonBuilder()
                 .setCustomId(Location.SpawnFilterNewestFirst)
-                .setLabel(text(Location.SpawnFilterNewestFirst, this.preferences.interfaceLanguage))
+                .setLabel(
+                  text(
+                    Location.SpawnFilterNewestFirst,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(getFilterStyle(Location.SpawnFilterNewestFirst))
-                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+                .setDisabled(
+                  this.preferences.review.filters.includes(
+                    Location.SpawnFilterRandom,
+                  ),
+                ),
             ),
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
                 .setCustomId(Location.SpawnFilterOldestFirst)
-                .setLabel(text(Location.SpawnFilterOldestFirst, this.preferences.interfaceLanguage))
+                .setLabel(
+                  text(
+                    Location.SpawnFilterOldestFirst,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(getFilterStyle(Location.SpawnFilterOldestFirst))
-                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+                .setDisabled(
+                  this.preferences.review.filters.includes(
+                    Location.SpawnFilterRandom,
+                  ),
+                ),
               new ButtonBuilder()
                 .setCustomId(Location.SpawnFilterReviewCount)
-                .setLabel(text(Location.SpawnFilterReviewCount, this.preferences.interfaceLanguage))
+                .setLabel(
+                  text(
+                    Location.SpawnFilterReviewCount,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(getFilterStyle(Location.SpawnFilterReviewCount))
-                .setDisabled(this.preferences.review.filters.includes(Location.SpawnFilterRandom)),
+                .setDisabled(
+                  this.preferences.review.filters.includes(
+                    Location.SpawnFilterRandom,
+                  ),
+                ),
               new ButtonBuilder()
                 .setCustomId(Location.SpawnFilterRandom)
-                .setLabel(text(Location.SpawnFilterRandom, this.preferences.interfaceLanguage))
+                .setLabel(
+                  text(
+                    Location.SpawnFilterRandom,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(getFilterStyle(Location.SpawnFilterRandom)),
               new ButtonBuilder()
-                .setCustomId(this.preferences.review.filters.includes(Location.SpawnFilterReviewCount) ? Location.SpawnFilterConfirmByEnteringCount : Location.SpawnFilterConfirm)
-                .setLabel(text(this.preferences.review.filters.includes(Location.SpawnFilterReviewCount) ? Location.SpawnFilterConfirmByEnteringCount : Location.SpawnFilterConfirm, this.preferences.interfaceLanguage))
+                .setCustomId(
+                  this.preferences.review.filters.includes(
+                    Location.SpawnFilterReviewCount,
+                  )
+                    ? Location.SpawnFilterConfirmByEnteringCount
+                    : Location.SpawnFilterConfirm,
+                )
+                .setLabel(
+                  text(
+                    this.preferences.review.filters.includes(
+                      Location.SpawnFilterReviewCount,
+                    )
+                      ? Location.SpawnFilterConfirmByEnteringCount
+                      : Location.SpawnFilterConfirm,
+                    this.preferences.interfaceLanguage,
+                  ),
+                )
                 .setStyle(ButtonStyle.Success),
             ),
           ];
@@ -764,45 +845,182 @@ export class StartMenu extends MenuHelper {
           await this.preferences.save();
 
           return { embeds: [], components, content };
+        } else if (this.platform === "telegram") {
+          await this.preferences.save();
+          return {
+            content: text(
+              "main_menu.spawn.description",
+              this.preferences.interfaceLanguage,
+            ),
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text:
+                      (this.preferences.review.filters.includes(
+                        Location.SpawnFilterQualityASC,
+                      )
+                        ? `🟢 `
+                        : ``) +
+                      text(
+                        Location.SpawnFilterQualityASC,
+                        this.preferences.interfaceLanguage,
+                      ),
+                    callback_data: Location.SpawnFilterQualityASC,
+                  },
+                  {
+                    text:
+                      (this.preferences.review.filters.includes(
+                        Location.SpawnFilterStrengthASC,
+                      )
+                        ? `🟢 `
+                        : ``) +
+                      text(
+                        Location.SpawnFilterStrengthASC,
+                        this.preferences.interfaceLanguage,
+                      ),
+                    callback_data: Location.SpawnFilterStrengthASC,
+                  },
+                ],
+                [
+                  {
+                    text:
+                      (this.preferences.review.filters.includes(
+                        Location.SpawnFilterNewestFirst,
+                      )
+                        ? `🟢 `
+                        : ``) +
+                      text(
+                        Location.SpawnFilterNewestFirst,
+                        this.preferences.interfaceLanguage,
+                      ),
+                    callback_data: Location.SpawnFilterNewestFirst,
+                  },
+                  {
+                    text:
+                      (this.preferences.review.filters.includes(
+                        Location.SpawnFilterOldestFirst,
+                      )
+                        ? `🟢 `
+                        : ``) +
+                      text(
+                        Location.SpawnFilterOldestFirst,
+                        this.preferences.interfaceLanguage,
+                      ),
+                    callback_data: Location.SpawnFilterOldestFirst,
+                  },
+                ],
+                [
+                  {
+                    text:
+                      (this.preferences.review.filters.includes(
+                        Location.SpawnFilterReviewCount,
+                      )
+                        ? `🟢 `
+                        : ``) +
+                      text(
+                        Location.SpawnFilterReviewCount,
+                        this.preferences.interfaceLanguage,
+                      ),
+                    callback_data: Location.SpawnFilterReviewCount,
+                  },
+                  {
+                    text:
+                      (this.preferences.review.filters.includes(
+                        Location.SpawnFilterRandom,
+                      )
+                        ? `🟢 `
+                        : ``) +
+                      text(
+                        Location.SpawnFilterRandom,
+                        this.preferences.interfaceLanguage,
+                      ),
+                    callback_data: Location.SpawnFilterRandom,
+                  },
+                ],
+                [
+                  {
+                    text: !this.preferences.review.filters.includes(
+                      Location.SpawnFilterReviewCount,
+                    )
+                      ? text(
+                          Location.SpawnFilterConfirm,
+                          this.preferences.interfaceLanguage,
+                        )
+                      : text(
+                          Location.SpawnFilterConfirmByEnteringCount,
+                          this.preferences.interfaceLanguage,
+                        ),
+                    callback_data: !this.preferences.review.filters.includes(
+                      Location.SpawnFilterReviewCount,
+                    )
+                      ? Location.SpawnFilterConfirm
+                      : Location.SpawnFilterConfirmByEnteringCount,
+                  },
+                ],
+              ],
+            },
+          };
         }
-        break;
-      };
+      }
 
       case Location.SpawnFilterConfirm:
-       const spawn = new Spawn();
-       spawn.userId = this.user.id;
-       spawn.platform = this.platform;
-       spawn.during = this.preferences.idleTimeout;
-       spawn.flashcards =  await this.user.getFlashcards({
-        userId: this.user.id,
-        sortBy: this.preferences.review.filters,
-       });
-       await spawn.initialize();
+        const spawn = new Spawn();
+        spawn.userId = this.user.id;
+        spawn.platform = this.platform;
+        spawn.during = this.preferences.idleTimeout;
+        spawn.flashcards = await this.user.getFlashcards({
+          userId: this.user.id,
+          sortBy: this.preferences.review.filters,
+        });
+        await spawn.initialize();
 
-       const notification = new Notification();
-       notification.type = NotificationType.SpawnViaMenu;
-       notification.active = true;
-       notification.expiryPolicy = ExpiryPolicy.Discard;
-       notification.data = {
-        userId: this.user.id,
-        deleteAfter: this.preferences.idleTimeout,
-        updatedNow: false,
-        message: "Custom session.",
-        alwaysUpdate: false,
-        buttons: [
+        const notification = new Notification();
+        notification.type = NotificationType.SpawnViaMenu;
+        notification.active = true;
+        notification.expiryPolicy = ExpiryPolicy.Discard;
+        notification.data = {
+          userId: this.user.id,
+          deleteAfter: this.preferences.idleTimeout,
+          updatedNow: false,
+          message: "Custom session.",
+          alwaysUpdate: false,
+          buttons: [
+            {
+              name: `Review ${process.env.version}`,
+              id: `instant:spawn:${spawn.uuid}:go`,
+            },
+          ],
+        };
+
+        notification.uuid = spawn.uuid;
+        await notification.save();
+        //  await notification.send();
+
+        await spawn.do(
+          1,
           {
-            name: `Review ${process.env.version}`,
-            id: `instant:spawn:${spawn.uuid}:go`,
+            platform: this.platform,
+            userId:
+              this.platform === "discord"
+                ? this.user.discordIDS
+                : this.user.telegramIDs[0],
           },
-        ],
-       };
+          this.preferences.review.side,
+        );
 
-       notification.uuid = spawn.uuid;
-       await notification.save();
-      //  await notification.send();
-
-       await spawn.do(1, { platform: this.platform, userId: this.user.discordIDS }, this.preferences.review.side);
-       return { embeds: [], components: [], content: "Custom session was created successfully." };
+        if (this.platform === "discord") {
+          return {
+            embeds: [],
+            components: [],
+            content: "Custom session was created successfully.",
+          };
+        } else if (this.platform === "telegram") {
+          return {
+            text: "Custom session was created successfully.",
+          };
+        }
+        break;
 
       case Location.Registration:
       case Location.RegistrationPreferences:

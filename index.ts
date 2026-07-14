@@ -21,7 +21,7 @@ if (process.env.stage === "dev") {
   await DiscordClient.application.commands.set(commands);
   const dev = new User();
   dev.telegramIDs = [8097145027, 8146987863];
-  dev.discordIDS = "1276300934141579305";
+  dev.discordIDS = "1522937179243020289";
   dev.sessions = [];
   dev.name = "nxdreaming (developer account)";
   dev.sets = [];
@@ -42,11 +42,11 @@ if (process.env.stage === "dev") {
   await renewal(dev.id, {
     notice: "dev tests",
     timestamp: Date.now(),
-    time: 9e90,
-    renewal: 9e90,
+    time: 86400000,
+    renewal: Date.now() + 86400000,
     model: "gpt-4o-mini",
-    output: 9e90,
-    input: 9e90,
+    output: 1000000,
+    input: 50000000,
   });
 
   const fronts = ["test", "testify", "very testifyed"];

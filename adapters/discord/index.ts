@@ -41,6 +41,7 @@ import path from "path";
 import { MenuHelper, StartMenu } from "commands";
 import { platform } from "os";
 import { Location } from "commands/classes/StartMenu.ts";
+import { Debugger } from "commands/classes/debug/Debugger.ts";
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
@@ -58,6 +59,7 @@ const client = new Client({
 });
 
 client.on("interactionCreate", async (interaction) => {
+
   if (
     interaction.isChatInputCommand() &&
     interaction.commandName === "start" &&
@@ -130,7 +132,7 @@ client.on("interactionCreate", async (interaction) => {
 
     console.log(interaction.customId, "trig");
 
-    if ((embeds.length || components.length || content) && !modal) {
+    if ((embeds.length || components.length) && !modal) {
       await interaction.editReply({
         embeds: embeds ? embeds : [],
         components: components ? components : [],
@@ -194,6 +196,14 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.content) return;
+
+  if(message.content === "debug"){
+    const debugger_ = new Debugger((await User.findOneBy({ discordIDS: message.author.id })).id, "discord", message.id);
+    await debugger_.attach()
+    await debugger_.webhook();
+    return;
+  }
+
   switch (message.content) {
     default:
       const user = await User.findOneBy({ discordIDS: message.author.id });

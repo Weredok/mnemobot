@@ -21,8 +21,22 @@ import { createHash } from "node:crypto";
 import { text } from "../../../core/languages/index.ts";
 import { EnterManageOptions } from "database/models/Preferences.ts";
 
+export interface EnterWordType {
+  mode: EnterWordTypeMode;
+  quantity: EnterWordTypeQuantity;
+}
+
+enum EnterWordTypeMode {
+  Manual, Auto, Mixed, Ask
+};
+
+enum EnterWordTypeQuantity {
+  Single, Batch, 
+}
+
 export class WordInteraction extends BaseInteraction {
   word: Flashcard;
+  enterType: EnterWordType;
 
   constructor(
     user: User,
@@ -136,14 +150,11 @@ export class WordInteraction extends BaseInteraction {
   }
 
   async enter(data: string, source?: string, target?: string, auto?: boolean) {
+    console.log(data, auto)
     let embeds: EmbedBuilder[] = [];
     let components: ActionRowBuilder<ButtonBuilder>[] = [];
 
     if (data.split(", ").length > 1) {
-    //  await data.split(", ").map(async (data) => {
-    //     await this.enter(data, source, target, true);
-    //   });
-
     for(const data_ of data.split(", ")) {
       await this.enter(data_, source, target, true);
     };
@@ -310,6 +321,7 @@ export class WordInteraction extends BaseInteraction {
     // Обновление сообщения ежесекундно на случай, если пользователь ждёт ии-перевода по таймеру
     let ai = true;
     const intervalOfEditingMessage = setInterval(async () => {
+      if(auto) return ;
       if (!ai) return;
       time -= 1;
 
@@ -346,8 +358,8 @@ export class WordInteraction extends BaseInteraction {
       }
 
     await message.edit({
-      content: "",
-      embeds: await this.enterGeneratorUtil(this.word, message, "create"),
+      content: auto ? `Loading $...` : ``,
+      embeds:!auto ? await this.enterGeneratorUtil(this.word, message, "create") : [],
       components: !auto ? [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
@@ -544,8 +556,7 @@ export class WordInteraction extends BaseInteraction {
         const msg = messages.first();
         const data_ = msg?.content;
         const flashcard = await this.enterRequest([
-          ...(data.includes(", ") ? data.split(", ") : data),
-          ...data_.split(", "),
+         ...(data.includes(", ") ? data.split(", ") : [data]),
         ]) 
 
         // Save/cancel
