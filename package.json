@@ -1,0 +1,46 @@
+{
+  "name": "mnemo",
+  "version": "1.0.0-test",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles"
+  },
+  "keywords": [],
+  "workspaces": [
+    "packages/*",
+    "adapters/*",
+    "core/*",
+    "plugins/*"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@jest/globals": "^30.0.2",
+    "@types/node": "^24.0.3",
+    "axios": "^1.10.0",
+    "better-sqlite3": "^11.10.0",
+    "discord.js": "^14.20.0",
+    "jest-cli": "^30.0.2",
+    "openai": "^5.13.1",
+    "pg": "^8.11.3",
+    "pm2": "^6.0.14",
+    "prettier": "^3.5.3",
+    "puregram": "^2.26.8",
+    "sql.js": "^1.13.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.25",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.0.2",
+    "ts-jest": "^29.4.0",
+    "tsx": "^4.21.0",
+    "typedoc": "^0.28.19",
+    "typedoc-github-theme": "^0.4.0"
+  }
+}

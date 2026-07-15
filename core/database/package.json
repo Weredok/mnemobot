@@ -1,0 +1,10 @@
+{
+    "name": "database",
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "jest datasource.test.js",
+        "start": "node --loader ts-node/esm index.ts"
+    }
+}
