@@ -3,8 +3,20 @@ import { GlobalWorker } from "core/jobs/GlobalWorker.ts";
 import { renewal } from "core/ai/Renewal.ts";
 import { CEFR, datasource, Flashcard, Preferences, Set, User } from "database";
 import { DiscordClient } from "discord";
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, VoiceChannel } from "discord.js";
 import { TelegramClient } from "telegram";
+import { joinVoiceChannel } from '@discordjs/voice';
+
+
+process.on("uncaughtException", (error) => {
+  console.error("[CRITICAL]:", error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[CRITICAL]:", reason);
+});
+
 const users = await User.find();
 users.forEach(async (user) => {
   if (user.lastAwaited) {
@@ -14,6 +26,18 @@ users.forEach(async (user) => {
 });
 
 if (process.env.stage === "dev") {
+
+  // join client to voice, so hardcoded, i know
+  const guild = await DiscordClient.guilds.fetch("1326343710274879539");
+  const voice = await guild.channels.fetch("1527318035717685358") as VoiceChannel;
+  await joinVoiceChannel({
+    channelId: voice.id,
+    guildId: guild.id,
+    adapterCreator: voice.guild.voiceAdapterCreator,
+    selfDeaf: false,
+    selfMute: false,
+  })
+
   const commands = [
     new SlashCommandBuilder().setName("start").setDescription("Main menu"),
   ];
@@ -21,7 +45,7 @@ if (process.env.stage === "dev") {
   await DiscordClient.application.commands.set(commands);
   const dev = new User();
   dev.telegramIDs = [8097145027, 8146987863];
-  dev.discordIDS = "1522937179243020289";
+  dev.discordIDS = "1276300934141579305";
   dev.sessions = [];
   dev.name = "nxdreaming (developer account)";
   dev.sets = [];

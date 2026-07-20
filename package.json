@@ -17,6 +17,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@discordjs/voice": "^0.19.2",
     "@jest/globals": "^30.0.2",
     "@types/node": "^24.0.3",
     "axios": "^1.10.0",

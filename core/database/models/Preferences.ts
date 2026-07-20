@@ -3,6 +3,13 @@ import { User } from "./User.ts";
 import { type DictionaryFilters } from "core";
 import { Location } from "commands/classes/StartMenu.ts";
 
+interface Splitters {
+  ForSingleWordWithProvidedTranslation: string,
+  ForProvidingSynonyms: string,
+  ForProvidingBatchOfWords: string,
+  ForProvidingBatchOfSentences: string,
+  ForProvidingExamples: string
+};
 interface ReviewOptions {
   // Сторона карточки для повторения
   side: "front" | "back";
@@ -129,6 +136,9 @@ class Preferences extends BaseEntity {
   // Настройки поведения во время повторения слов (самое частое)
   review: ReviewOptions;
 
+  @Column("simple-json", { nullable: true })
+  splitters: Splitters;
+
   @Column("text", { nullable: true })
   // Последний язык, который использовался пользователем для изучения
   lastTarget: string;
@@ -157,6 +167,13 @@ class Preferences extends BaseEntity {
       forgotten: false,
       polysemitic: false,
     };
+    this.splitters = {
+      ForProvidingBatchOfSentences: ";",
+      ForProvidingBatchOfWords: "\\n",
+      ForProvidingSynonyms: ", ",
+      ForProvidingExamples: "//",
+      ForSingleWordWithProvidedTranslation: " - ",
+    }
     this.review = {
       side: "back",
       auto: {

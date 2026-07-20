@@ -44,7 +44,7 @@ import { Location } from "commands/classes/StartMenu.ts";
 import { Debugger } from "commands/classes/debug/Debugger.ts";
 
 const client = new Client({
-  intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages"],
+  intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages", "GuildVoiceStates"],
   partials: [Partials.Channel, Partials.Message],
   presence: {
     activities: [
@@ -60,6 +60,8 @@ const client = new Client({
 
 client.on("interactionCreate", async (interaction) => {
 
+  const isUserOnDB = await User.findOneBy({ discordIDS: interaction.user.id });
+  if (!isUserOnDB) return console.log(`[discord]: User ${interaction.user.id} not found in database`);
   if (
     interaction.isChatInputCommand() &&
     interaction.commandName === "start" &&
@@ -149,6 +151,9 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("interactionCreate", async (interaction) => {
+  
+  const isUserOnDB = await User.findOneBy({ discordIDS: interaction.user.id });
+  if (!isUserOnDB) return console.log(`[discord]: User ${interaction.user.id} not found in database`);
   if (interaction.isModalSubmit()) {
     switch (interaction.customId) {
       case "main_menu.settings.change_user_info_modal":
@@ -196,6 +201,9 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.content) return;
+  
+  const isUserOnDB = await User.findOneBy({ discordIDS: message.author.id });
+  if (!isUserOnDB) return console.log(`[discord]: User ${message.author.id} not found in database`);
 
   if(message.content === "debug"){
     const debugger_ = new Debugger((await User.findOneBy({ discordIDS: message.author.id })).id, "discord", message.id);

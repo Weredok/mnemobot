@@ -1,10 +1,10 @@
-// env-setup.ts
 import { config } from "dotenv";
 
+console.log(process.env.stage)
 switch (process.env.stage) {
   case "dev":
   case "canary":
-  case "production":
+  case "prod":
     config({ path: `./enviroment/${process.env.stage}.env` });
     break;
   default:

@@ -228,6 +228,7 @@ export class WordInteraction extends BaseInteraction {
           await interaction.message.delete();
           await this.enter(data, interaction.values[0], target);
         });
+        return;
     }
 
     if (
@@ -271,6 +272,7 @@ export class WordInteraction extends BaseInteraction {
           await interaction.message.delete();
           await this.enter(data, source, interaction.values[0]);
         });
+        return;
     }
 
     let time = this.dictionary.preferences.idleTimeout / 1000;
@@ -353,7 +355,7 @@ export class WordInteraction extends BaseInteraction {
         case EnterManageOptions.AlwaysAi: {
           console.log("generating examples via auto")
           await this.generateExamples();
-          return;
+          break;
         }
       }
 
@@ -553,11 +555,11 @@ export class WordInteraction extends BaseInteraction {
         max: 1,
       })
       .then(async (messages) => {
+        ai = false;
+    clearInterval(intervalOfEditingMessage);
         const msg = messages.first();
         const data_ = msg?.content;
-        const flashcard = await this.enterRequest([
-         ...(data.includes(", ") ? data.split(", ") : [data]),
-        ]) 
+        const flashcard = await this.enterRequest([data, data_]);
 
         // Save/cancel
         this.user.lastAwaited = 0;

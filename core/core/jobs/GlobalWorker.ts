@@ -2,14 +2,31 @@ import { Notification, User } from "database";
 import { LessThan, MoreThanOrEqual, And } from "typeorm";
 import { Dispatcher } from "./Dispatcher.ts";
 import { ExpiryPolicy } from "database";
+import { ModelUpdaterWorker } from "./AvailableAiModels.ts";
+import { AnalyticsService } from "./AnalyticsService.ts";
+import { TelegramClient } from "telegram";
 
 export class GlobalWorker {
   static scheduledTasks = new Set<string>();
   static activeTimers = new Map<string, NodeJS.Timeout>();
 
   static async start() {
-    await this.tick(); // Первый запуск при старте
+    await this.tick(); 
     setInterval(() => this.tick(), 3 * 60 * 60 * 1000);
+
+    const worker = new ModelUpdaterWorker();
+    await worker.updateModels();
+
+    setInterval(() => worker.updateModels(), 24 * 60 * 60 * 1000);
+
+    await AnalyticsService.ensureTodayExists();
+    
+    await TelegramClient.api.sendMessage({
+      chat_id: "@medsa_public_reports",
+      text: await AnalyticsService.generateReportString(),
+      parse_mode: "HTML"
+    });
+
   }
 
   static async tick() {

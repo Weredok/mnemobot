@@ -58,11 +58,11 @@ export class BaseInteraction {
 
   /**
    * Запрос к ИИ, будет вынесено из под адаптера в ядро проекта
-   */
+  */
   async enterRequest(
-    data: string | string[],
-    ai: boolean = true,
-    flashcard?: Flashcard,
+  data: string | string[],
+  ai: boolean = true,
+  flashcard?: Flashcard,
   ) {
     this.user.lastAwaited = 0;
     await this.user.save();

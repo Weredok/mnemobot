@@ -7,6 +7,11 @@ import { ArrayContainedBy, ArrayContains } from "typeorm";
 const client = new Telegram({ token: process.env.telegram_adapter_token });
 
 client.updates.on("message", async (ctx) => {
+  const isUserOnDB = await User.findOneBy({
+    telegramIDs: ArrayContains([String(ctx.from.id)]),
+  });
+
+  if (!isUserOnDB) return console.log(`[telegram]: User ${ctx.from.id} not found in database`);
   const commands = ["/setusername", "/setpassword"];
 
   if (commands.includes(ctx.text.split(" ")[0])) {
@@ -62,6 +67,12 @@ client.updates.on("message", async (ctx) => {
 });
 
 client.updates.on("callback_query", async (ctx) => {
+  
+  const isUserOnDB = await User.findOneBy({
+    telegramIDs: ArrayContains([String(ctx.from.id)]),
+  });
+
+  if (!isUserOnDB) return console.log(`[telegram]: User ${ctx.from.id} not found in database`);
   const user = await User.findOneBy({
     telegramIDs: ArrayContains([String(ctx.from.id)]),
   });
@@ -108,6 +119,6 @@ client.updates.on("callback_query", async (ctx) => {
   }
 });
 
-client.updates.startPolling(); 
+await client.updates.startPolling(); 
 
 export { client as TelegramClient };
