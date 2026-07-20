@@ -341,8 +341,8 @@
     "provider": "z-ai",
     "context_length": 1048576,
     "pricing": {
-      "prompt": 9.646e-7,
-      "completion": 0.0000030316
+      "prompt": 9.8e-7,
+      "completion": 0.00000308
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -365,8 +365,8 @@
     "provider": "moonshotai",
     "context_length": 262144,
     "pricing": {
-      "prompt": 8.5e-7,
-      "completion": 0.0000038
+      "prompt": 8.2e-7,
+      "completion": 0.00000375
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -1025,8 +1025,8 @@
     "provider": "google",
     "context_length": 262144,
     "pricing": {
-      "prompt": 2.2e-7,
-      "completion": 5.5e-7
+      "prompt": 1.2e-7,
+      "completion": 3.7e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2081,8 +2081,8 @@
     "provider": "minimax",
     "context_length": 204800,
     "pricing": {
-      "prompt": 3e-7,
-      "completion": 0.0000012
+      "prompt": 2.55e-7,
+      "completion": 0.00000102
     },
     "isFree": false,
     "savedFromDeveloper": false

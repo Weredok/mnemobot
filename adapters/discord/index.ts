@@ -28,11 +28,11 @@ import {
   TopLevelComponent,
 } from "discord.js";
 import { ILike } from "typeorm";
-import { defer, Dictionary } from "core";
+import { defer, detectLanguages, Dictionary } from "core";
 import { setupNewLanguage } from "./interactions/setupNewLanguage.ts";
 import { DictionaryPortalAtDiscord } from "./portals/Dictionary.ts";
 import { reviewWord } from "./interactions/reviewWord.ts";
-import { WordInteraction } from "./interactions/WordInteraction.ts";
+import { WordInteraction } from "core/classes/WordInteraction.ts";
 import { NotificationType } from "database/models/Notification.ts";
 import { renewal } from "core/ai/Renewal.ts";
 import { Registration } from "core/services/Registration.ts";
@@ -44,7 +44,13 @@ import { Location } from "commands/classes/StartMenu.ts";
 import { Debugger } from "commands/classes/debug/Debugger.ts";
 
 const client = new Client({
-  intents: ["Guilds", "GuildMessages", "MessageContent", "DirectMessages", "GuildVoiceStates"],
+  intents: [
+    "Guilds",
+    "GuildMessages",
+    "MessageContent",
+    "DirectMessages",
+    "GuildVoiceStates",
+  ],
   partials: [Partials.Channel, Partials.Message],
   presence: {
     activities: [
@@ -59,9 +65,11 @@ const client = new Client({
 });
 
 client.on("interactionCreate", async (interaction) => {
-
   const isUserOnDB = await User.findOneBy({ discordIDS: interaction.user.id });
-  if (!isUserOnDB) return console.log(`[discord]: User ${interaction.user.id} not found in database`);
+  if (!isUserOnDB)
+    return console.log(
+      `[discord]: User ${interaction.user.id} not found in database`,
+    );
   if (
     interaction.isChatInputCommand() &&
     interaction.commandName === "start" &&
@@ -151,9 +159,11 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-  
   const isUserOnDB = await User.findOneBy({ discordIDS: interaction.user.id });
-  if (!isUserOnDB) return console.log(`[discord]: User ${interaction.user.id} not found in database`);
+  if (!isUserOnDB)
+    return console.log(
+      `[discord]: User ${interaction.user.id} not found in database`,
+    );
   if (interaction.isModalSubmit()) {
     switch (interaction.customId) {
       case "main_menu.settings.change_user_info_modal":
@@ -201,13 +211,20 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.content) return;
-  
-  const isUserOnDB = await User.findOneBy({ discordIDS: message.author.id });
-  if (!isUserOnDB) return console.log(`[discord]: User ${message.author.id} not found in database`);
 
-  if(message.content === "debug"){
-    const debugger_ = new Debugger((await User.findOneBy({ discordIDS: message.author.id })).id, "discord", message.id);
-    await debugger_.attach()
+  const isUserOnDB = await User.findOneBy({ discordIDS: message.author.id });
+  if (!isUserOnDB)
+    return console.log(
+      `[discord]: User ${message.author.id} not found in database`,
+    );
+
+  if (message.content === "debug") {
+    const debugger_ = new Debugger(
+      (await User.findOneBy({ discordIDS: message.author.id })).id,
+      "discord",
+      message.id,
+    );
+    await debugger_.attach();
     await debugger_.webhook();
     return;
   }
@@ -222,11 +239,13 @@ client.on("messageCreate", async (message) => {
 
       const iWord = new WordInteraction(
         user,
-        preferences.language,
-        message.channel as DMChannel,
+        preferences,
+        detectLanguages(message.content)[0],
       );
 
-      await iWord.enter(message.content);
+      await iWord.executeInput(message.content);
+
+      await message.reply({ embeds: await iWord.builder().embeds })
 
       break;
   }

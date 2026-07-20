@@ -21,14 +21,17 @@ class Flashcard extends BaseEntity {
   // Айди набора, к которому относится эта карточка
   @Column("text", { nullable: true })
   set: string;
-
-  // Одна из сторон (фронт)
-  @Column("simple-array", { nullable: false })
+// Одна из сторон (фронт)
+  @Column("text", { array: true, nullable: false })
   front: string[];
 
   // Одна из сторон (бэк)
-  @Column("simple-array", { nullable: false })
+  @Column("text", { array: true, nullable: false })
   back: string[];
+
+  // Примеры
+  @Column("text", { array: true, nullable: true })
+  examples: string[];
 
   // Последние оценки за эту карточку
   @Column("simple-array")
@@ -61,10 +64,6 @@ class Flashcard extends BaseEntity {
   // Пользователь
   @Column("numeric", { nullable: false })
   user: number;
-
-  @Column("text", { array: true, nullable: true, default: [] })
-  // (target language) / (source language)
-  examples: string[]
 
   async review(c: boolean, p: number, t: number) {
     /**

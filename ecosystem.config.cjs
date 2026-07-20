@@ -4,7 +4,6 @@ module.exports = {
     script: "./index.ts",
     interpreter: "node",
     interpreter_args: "--import tsx",
-    watch: true,
     env: {
       stage: "prod"
     },

@@ -68,7 +68,7 @@ if (process.env.stage === "dev") {
     timestamp: Date.now(),
     time: 86400000,
     renewal: Date.now() + 86400000,
-    model: "gpt-4o-mini",
+    model: "nvidia/nemotron-3-ultra-550b-a55b:free",
     output: 1000000,
     input: 50000000,
   });

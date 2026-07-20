@@ -6,7 +6,7 @@ export function getAiRequestOptions(modelId: string, target: string) {
 
   if (modelId.includes(':free') || modelId.includes('small') || modelId.includes('mini')) {
     temperature = 0.2; 
-    maxTokens = 400; 
+    maxTokens = 2000; 
   }
 
   if (target === BotAiTargets.GENERATE_WORD_SET) {

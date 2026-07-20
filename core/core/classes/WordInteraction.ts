@@ -6,10 +6,12 @@ import { detectLanguages, Dictionary, OpenAIClient } from "core";
 import { DeveloperSelectedAiTargets } from "core/ai/Readme.ts";
 import { getCurrentQuota } from "core/ai/Renewal.ts";
 import { Flashcard, Preferences, User } from "database";
-import { text } from "../../../core/languages/index.ts";
+import { text } from "../../languages/index.ts";
 import fs from "fs";
 import { getAiRequestOptions } from "core/ai/aiOptions.ts";
 import { BotAiTargets } from "core/ai/const.ts";
+import { EmbedBuilder } from "discord.js";
+import { DiscordClient } from "discord";
 
 /**
  * This enums will be used to identify the type of word typing. Suggested variants of use in chatbots is:
@@ -74,22 +76,24 @@ export class WordInteraction {
   preferences: Preferences;
   languageCode: string;
   dictionary: Dictionary;
-  flashcard: Flashcard;
+  flashcards_created: Flashcard[];
   enter: EnterWordInteraction;
+  private sourceLanguage: string;
+  private targetLanguage: string;
 
   constructor(
     user: User,
     preferences: Preferences,
     languageCode: string,
     enter?: EnterWordInteraction,
-    flashcard?: Flashcard,
+    flashcards_created?: Flashcard[],
     dictionary?: Dictionary,
   ) {
     this.user = user;
     this.preferences = preferences;
     this.languageCode = languageCode;
     this.dictionary = dictionary;
-    this.flashcard = flashcard;
+    this.flashcards_created = flashcards_created || [];
     this.enter = enter;
   }
 
@@ -98,6 +102,24 @@ export class WordInteraction {
     executionAfterSuccess?: (any?) => void | Promise<void>,
     executionAfterData?: any,
   ) {
+    if (!this.dictionary) {
+      this.dictionary = new Dictionary({
+        user: this.user,
+        preferences: this.preferences,
+        userId: this.user.id,
+        language: {
+          source: this.sourceLanguage,
+          target: this.targetLanguage,
+        },
+        folderIds: [],
+        setIds: [],
+        flashcardIds: [],
+        folders: [],
+        sets: [],
+        flashcards: [],
+      });
+    }
+
     await this.dictionary.syncronize();
     if (executionAfterSuccess)
       executionAfterData
@@ -206,12 +228,31 @@ export class WordInteraction {
       this.enter.state = TranslationState.Incomplete;
     }
 
+    const detected = detectLanguages(data);
+    this.sourceLanguage =
+      detected.length > 0
+        ? detected[0]
+        : this.dictionary?.language?.source || this.languageCode;
+
+    this.targetLanguage =
+      this.dictionary?.language?.target ||
+      this.user.languages[0] ||
+      this.languageCode;
+
+    if (this.sourceLanguage === this.targetLanguage) {
+      this.targetLanguage =
+        this.sourceLanguage === this.user.languages[1]
+          ? this.user.languages[0]
+          : this.user.languages[1];
+    }
+
     return data_flashcards;
   }
 
-  async executeInput(
-    data: string,
-  ): Promise<Array<{ front: string[]; back: string[] }>> {
+  async executeInput(data: string) {
+    await this.syncronize();
+    await this.identify(data);
+
     const { splitters } = this.preferences;
     const result: Array<{
       front: string[];
@@ -269,9 +310,11 @@ export class WordInteraction {
           this.dictionary.language.source,
           this.dictionary.language.target,
         );
+        console.log("🔍 AI RETURNED BACK:", back); // Что тут?
         item.back = back;
         item.examples = examples;
         item.front = front;
+        console.log("🔍 ITEM.BACK BEFORE FLASHCARD:", item.back); // А тут?
       }
 
       const flashcard = new Flashcard();
@@ -281,9 +324,12 @@ export class WordInteraction {
       flashcard.createdAt = Date.now();
       flashcard.quality = [];
       flashcard.user = this.user.id;
+      console.log("🔍 FLASHCARD.BACK AFTER ASSIGN:", flashcard.back); // А что тут?
+
 
       await flashcard.save();
       this.dictionary.flashcards.push(flashcard);
+      this.flashcards_created.push(flashcard);
       flashcards.push(flashcard);
     }
 
@@ -299,14 +345,14 @@ export class WordInteraction {
   ): Promise<{ front: string[]; back: string[]; examples: string[] }> {
     const quota = await getCurrentQuota(
       this.user.id,
-      DeveloperSelectedAiTargets[1],
+      BotAiTargets.TRANSLATE_AND_EXPAND,
     );
 
     if (!quota) {
       throw new Error(text("base_interaction.quota_end", this.languageCode));
     }
 
-    const SELECTED_AI_MODEL = "gpt-4o-mini-2024-07-18";
+    const SELECTED_AI_MODEL = BotAiTargets.TRANSLATE_AND_EXPAND;
     const wordString = data.join(", ");
 
     const rq = `Translate from ${sourceLanguage} (${cefr}) to ${targetLanguage}. Target CEFR level: ${cefr}. Words/Sentences: ${wordString}.`;
@@ -326,26 +372,49 @@ export class WordInteraction {
       max_output_tokens: maxTokens,
     });
 
-    this.user.aiUsing.push({
-      timestamp: Date.now(),
-      usage: {
-        input: response.usage.input_tokens,
-        output: response.usage.output_tokens,
-      },
-      model: response.model,
-      output_text: response.output_text,
-      input_text: rq,
-      ping: Date.now() - datestamp,
+    console.log("[AI DEBUG] Raw Response:", response.output_text);
+
+    try {
+      const parsedAiResult = JSON.parse(response.output_text);
+      console.log("[AI DEBUG] Parsed:", parsedAiResult);
+
+      this.user.aiUsing.push({
+        timestamp: Date.now(),
+        usage: {
+          input: response.usage.input_tokens,
+          output: response.usage.output_tokens,
+        },
+        model: response.model,
+        output_text: response.output_text,
+        input_text: rq,
+        ping: Date.now() - datestamp,
+      });
+
+      await this.user.save();
+
+      return {
+        front: parsedAiResult.front || data,
+        back: parsedAiResult.back || [],
+        examples: parsedAiResult.examples || [],
+      };
+    } catch (e) {
+      console.error("[AI ERROR] Failed to parse JSON:", e);
+      return { front: data, back: ["AI_PARSE_ERROR"], examples: [] };
+    }
+  };
+
+  builder(){
+    const embeds: EmbedBuilder[] = [];
+
+    this.flashcards_created.map((flashcard) => {
+      embeds.push(
+        new EmbedBuilder()
+        .setDescription(
+          `**${flashcard.front.join(", ")}**\n**${flashcard.back.join(", ")}**\n\n${flashcard.examples?.join("\n")}`
+        )
+      );
     });
 
-    await this.user.save();
-
-    const parsedAiResult = JSON.parse(response.output_text);
-
-    return {
-      front: parsedAiResult.terms || data,
-      back: parsedAiResult.translations || [],
-      examples: parsedAiResult.examples || [],
-    };
+    return { embeds };
   }
 }

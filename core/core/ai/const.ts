@@ -7,7 +7,7 @@ export const BotAiTargets = {
    * Primary learning loop: translating incomplete words, fetching synonyms, 
    * and generating context examples tailored to the user's CEFR level.
    */
-  TRANSLATE_AND_EXPAND: 'translate_and_expand',
+  TRANSLATE_AND_EXPAND: 'nvidia/nemotron-3-ultra-550b-a55b:free',
 
   /**
    * Verifying user-submitted flashcards for correctness, normalizing synonyms, 
