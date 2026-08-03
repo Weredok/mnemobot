@@ -415,6 +415,8 @@ export class WordInteraction {
       );
     });
 
-    return { embeds };
+    const text = `ctx fwd 2002`
+
+    return { embeds, text };
   }
 }

@@ -1,6 +1,7 @@
 import { MenuHelper, StartMenu } from "commands";
 import { Location } from "commands/classes/StartMenu.ts";
-import { User } from "database";
+import { WordInteraction } from "core/classes/WordInteraction.ts";
+import { Preferences, User } from "database";
 import { Telegram } from "puregram";
 import { ArrayContainedBy, ArrayContains } from "typeorm";
 
@@ -11,13 +12,14 @@ client.updates.on("message", async (ctx) => {
     telegramIDs: ArrayContains([String(ctx.from.id)]),
   });
 
-  if (!isUserOnDB) return console.log(`[telegram]: User ${ctx.from.id} not found in database`);
+  if (!isUserOnDB)
+    return console.log(`[telegram]: User ${ctx.from.id} not found in database`);
   const commands = ["/setusername", "/setpassword"];
 
   if (commands.includes(ctx.text.split(" ")[0])) {
     switch (ctx.text.split(" ")[0]) {
       case commands[0]:
-        if(ctx.text.split(" ").length > 1){
+        if (ctx.text.split(" ").length > 1) {
           await ctx.reply(`not impltemented yet`);
         }
         break;
@@ -27,9 +29,10 @@ client.updates.on("message", async (ctx) => {
         break;
 
       default:
+        await ctx.reply(`ctx fwd`);
         break;
     }
-  };
+  }
 
   const user = await User.findOneBy({
     telegramIDs: ArrayContains([String(ctx.from.id)]),
@@ -40,39 +43,51 @@ client.updates.on("message", async (ctx) => {
       `[database] (Telegram): User with id ${ctx.from.id} not found. Request aborted.`,
     );
     return;
-  };
+  }
 
-  const mh = new MenuHelper(
-    user,
-    {
-      userId: user.id,
-      discordUserId: undefined,
-      telegramUserId: Number(user.telegramIDs[0]),
-    },
-    "telegram",
-  );
-  const startmenu = new StartMenu(mh);
+  if (ctx.text === "/start") {
+    const mh = new MenuHelper(
+      user,
+      {
+        userId: user.id,
+        discordUserId: undefined,
+        telegramUserId: Number(user.telegramIDs[0]),
+      },
+      "telegram",
+    );
+    const startmenu = new StartMenu(mh);
 
-  await startmenu.initialize();
+    await startmenu.initialize();
 
-  let { content, replyMarkup, parse_mode } = await startmenu.locate(
-    ctx.text === "/start" ? Location.Home : (ctx.text as Location),
-  );
+    let { content, replyMarkup, parse_mode } = await startmenu.locate(
+      ctx.text === "/start" ? Location.Home : (ctx.text as Location),
+    );
 
-  await ctx.reply(content, {
-    // @ts-ignore
-    reply_markup: replyMarkup,
-    parse_mode: parse_mode,
-  });
+    await ctx.reply(content, {
+      // @ts-ignore
+      reply_markup: replyMarkup,
+      parse_mode: parse_mode,
+    });
+  } else {
+    const preferences = await Preferences.findOneBy({ id: user.id });
+    const wi = new WordInteraction(
+      user,
+      preferences,
+      preferences.interfaceLanguage,
+    );
+    await wi.executeInput(ctx.text);
+    const { text } = wi.builder();
+    await ctx.reply(text);
+  }
 });
 
 client.updates.on("callback_query", async (ctx) => {
-  
   const isUserOnDB = await User.findOneBy({
     telegramIDs: ArrayContains([String(ctx.from.id)]),
   });
 
-  if (!isUserOnDB) return console.log(`[telegram]: User ${ctx.from.id} not found in database`);
+  if (!isUserOnDB)
+    return console.log(`[telegram]: User ${ctx.from.id} not found in database`);
   const user = await User.findOneBy({
     telegramIDs: ArrayContains([String(ctx.from.id)]),
   });
@@ -103,7 +118,6 @@ client.updates.on("callback_query", async (ctx) => {
   await ctx.answer({
     text: "Действие выполнено!", // Покажет toast-уведомление (сверху экрана)
     show_alert: false, // Если true — покажет модальное окно с кнопкой "OK"
-
   });
 
   if (content || replyMarkup || parse_mode) {
@@ -119,6 +133,6 @@ client.updates.on("callback_query", async (ctx) => {
   }
 });
 
-await client.updates.startPolling(); 
+await client.updates.startPolling();
 
 export { client as TelegramClient };

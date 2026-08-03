@@ -55,7 +55,7 @@ const client = new Client({
   presence: {
     activities: [
       {
-        name: `v${process.env.version} | /start`,
+        name: `hosting branch ${process.env.stage} / ${process.env.version} version`,
         state: "discord",
         type: ActivityType.Competing,
       },

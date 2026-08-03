@@ -17,7 +17,7 @@ export class GlobalWorker {
     const worker = new ModelUpdaterWorker();
     await worker.updateModels();
 
-    setInterval(async () => await worker.updateModels(), 24 * 60 * 60 * 1000);
+    setInterval(async () => await worker.updateModels(), 15000);
 
     await AnalyticsService.ensureTodayExists();
     setInterval(
@@ -28,7 +28,7 @@ export class GlobalWorker {
           parse_mode: "HTML",
         });
       },
-      24 * 60 * 60 * 1000,
+      10000,
     );
   }
 

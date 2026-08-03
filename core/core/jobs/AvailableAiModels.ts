@@ -45,19 +45,21 @@ export class ModelUpdaterWorker {
         const isFree = pricePrompt === 0 && priceCompletion === 0;
 
         const provider = m.id.includes('/') ? m.id.split('/')[0] : 'unknown';
+        const counter = existingModels.filter((m: any) => m.name === m.name && m.provider === provider)[0]?.streak || 0;
 
-        return {
-          id: m.id,
-          name: m.name,
-          provider: provider,
-          context_length: m.context_length,
-          pricing: {
-            prompt: pricePrompt,
-            completion: priceCompletion
-          },
-          isFree: isFree,
-          savedFromDeveloper: false
-        };
+          return {
+            id: m.id,
+            name: m.name,
+            provider,
+            context_length: m.context_length,
+            pricing: {
+              prompt: pricePrompt,
+              completion: priceCompletion
+            },
+            isFree,
+            savedFromDeveloper: false,
+            streak: counter ? counter + 1 : 1
+          };
       });
 
       for (const [id, model] of protectedModels.entries()) {

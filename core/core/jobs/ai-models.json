@@ -1,5 +1,125 @@
 [
   {
+    "id": "deepseek/deepseek-v4-flash-0731",
+    "name": "DeepSeek: DeepSeek V4 Flash 0731",
+    "provider": "deepseek",
+    "context_length": 1048576,
+    "pricing": {
+      "prompt": 1.4e-7,
+      "completion": 2.8e-7
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "thinkingmachines/inkling-small",
+    "name": "Thinking Machines: Inkling Small",
+    "provider": "thinkingmachines",
+    "context_length": 524288,
+    "pricing": {
+      "prompt": 5.8e-7,
+      "completion": 0.00000144
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "qwen/qwen3.7-flash",
+    "name": "Qwen: Qwen3.7 Flash",
+    "provider": "qwen",
+    "context_length": 1000000,
+    "pricing": {
+      "prompt": 3e-8,
+      "completion": 1.3e-7
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "anthropic/claude-opus-5-fast",
+    "name": "Claude Opus 5 (Fast)",
+    "provider": "anthropic",
+    "context_length": 1000000,
+    "pricing": {
+      "prompt": 0.00001,
+      "completion": 0.00005
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "anthropic/claude-opus-5",
+    "name": "Claude Opus 5",
+    "provider": "anthropic",
+    "context_length": 1000000,
+    "pricing": {
+      "prompt": 0.000005,
+      "completion": 0.000025
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "inclusionai/ling-3.0-flash:free",
+    "name": "Ling-3.0-flash (free)",
+    "provider": "inclusionai",
+    "context_length": 262144,
+    "pricing": {
+      "prompt": 0,
+      "completion": 0
+    },
+    "isFree": true,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "poolside/laguna-s-2.1",
+    "name": "Poolside: Laguna S 2.1",
+    "provider": "poolside",
+    "context_length": 1048576,
+    "pricing": {
+      "prompt": 9e-8,
+      "completion": 1.8e-7
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "poolside/laguna-s-2.1:free",
+    "name": "Poolside: Laguna S 2.1 (free)",
+    "provider": "poolside",
+    "context_length": 262144,
+    "pricing": {
+      "prompt": 0,
+      "completion": 0
+    },
+    "isFree": true,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "google/gemini-3.6-flash",
+    "name": "Google: Gemini 3.6 Flash",
+    "provider": "google",
+    "context_length": 1048576,
+    "pricing": {
+      "prompt": 0.0000015,
+      "completion": 0.0000075
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
+    "id": "google/gemini-3.5-flash-lite",
+    "name": "Google: Gemini 3.5 Flash Lite",
+    "provider": "google",
+    "context_length": 1048576,
+    "pricing": {
+      "prompt": 3e-7,
+      "completion": 0.0000025
+    },
+    "isFree": false,
+    "savedFromDeveloper": false
+  },
+  {
     "id": "meituan/longcat-2.0",
     "name": "Meituan: LongCat 2.0",
     "provider": "meituan",
@@ -89,8 +209,8 @@
     "provider": "openai",
     "context_length": 1050000,
     "pricing": {
-      "prompt": 0.000001,
-      "completion": 0.000006
+      "prompt": 1e-7,
+      "completion": 6.000000000000001e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -101,8 +221,8 @@
     "provider": "openai",
     "context_length": 1050000,
     "pricing": {
-      "prompt": 0.000001,
-      "completion": 0.000006
+      "prompt": 1e-7,
+      "completion": 6.000000000000001e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -113,8 +233,8 @@
     "provider": "openai",
     "context_length": 1050000,
     "pricing": {
-      "prompt": 0.0000025,
-      "completion": 0.000015
+      "prompt": 0.0000010000000000000002,
+      "completion": 0.000006
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -125,8 +245,8 @@
     "provider": "openai",
     "context_length": 1050000,
     "pricing": {
-      "prompt": 0.0000025,
-      "completion": 0.000015
+      "prompt": 0.0000010000000000000002,
+      "completion": 0.000006
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -209,22 +329,10 @@
     "provider": "tencent",
     "context_length": 262144,
     "pricing": {
-      "prompt": 2e-7,
-      "completion": 8e-7
+      "prompt": 1.32e-7,
+      "completion": 5.28e-7
     },
     "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "tencent/hy3:free",
-    "name": "Tencent: Hy3 (free)",
-    "provider": "tencent",
-    "context_length": 262144,
-    "pricing": {
-      "prompt": 0,
-      "completion": 0
-    },
-    "isFree": true,
     "savedFromDeveloper": false
   },
   {
@@ -315,7 +423,7 @@
     "id": "google/gemini-3-pro-image",
     "name": "Google: Nano Banana Pro (Gemini 3 Pro Image)",
     "provider": "google",
-    "context_length": 65536,
+    "context_length": 131072,
     "pricing": {
       "prompt": 0.000002,
       "completion": 0.000012
@@ -341,8 +449,8 @@
     "provider": "z-ai",
     "context_length": 1048576,
     "pricing": {
-      "prompt": 9.8e-7,
-      "completion": 0.00000308
+      "prompt": 0.00000112,
+      "completion": 0.00000352
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -365,8 +473,8 @@
     "provider": "moonshotai",
     "context_length": 262144,
     "pricing": {
-      "prompt": 8.2e-7,
-      "completion": 0.00000375
+      "prompt": 7.3e-7,
+      "completion": 0.0000035
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -423,7 +531,7 @@
     "id": "nvidia/nemotron-3-ultra-550b-a55b",
     "name": "NVIDIA: Nemotron 3 Ultra",
     "provider": "nvidia",
-    "context_length": 1000000,
+    "context_length": 512288,
     "pricing": {
       "prompt": 6e-7,
       "completion": 0.0000036
@@ -471,7 +579,7 @@
     "id": "stepfun/step-3.7-flash",
     "name": "StepFun: Step 3.7 Flash",
     "provider": "stepfun",
-    "context_length": 256000,
+    "context_length": 262144,
     "pricing": {
       "prompt": 2e-7,
       "completion": 0.00000115
@@ -648,30 +756,6 @@
     "savedFromDeveloper": false
   },
   {
-    "id": "poolside/laguna-m.1",
-    "name": "Poolside: Laguna M.1",
-    "provider": "poolside",
-    "context_length": 262144,
-    "pricing": {
-      "prompt": 2e-7,
-      "completion": 4e-7
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "poolside/laguna-m.1:free",
-    "name": "Poolside: Laguna M.1 (free)",
-    "provider": "poolside",
-    "context_length": 262144,
-    "pricing": {
-      "prompt": 0,
-      "completion": 0
-    },
-    "isFree": true,
-    "savedFromDeveloper": false
-  },
-  {
     "id": "~anthropic/claude-haiku-latest",
     "name": "Anthropic Claude Haiku Latest",
     "provider": "~anthropic",
@@ -713,8 +797,8 @@
     "provider": "~moonshotai",
     "context_length": 1048576,
     "pricing": {
-      "prompt": 0.000003,
-      "completion": 0.000015
+      "prompt": 0.0000029,
+      "completion": 0.000014
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -726,7 +810,7 @@
     "context_length": 1048576,
     "pricing": {
       "prompt": 0.0000015,
-      "completion": 0.000009
+      "completion": 0.0000075
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -797,8 +881,8 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 0.00000104,
-      "completion": 0.00000624
+      "prompt": 0.000001027,
+      "completion": 0.000006162
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -809,8 +893,8 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 4.5e-7,
-      "completion": 0.0000027
+      "prompt": 3e-7,
+      "completion": 0.000002
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -857,8 +941,8 @@
     "provider": "deepseek",
     "context_length": 1048576,
     "pricing": {
-      "prompt": 9.8e-8,
-      "completion": 1.96e-7
+      "prompt": 1.4e-7,
+      "completion": 2.8e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -891,7 +975,7 @@
     "id": "xiaomi/mimo-v2.5-pro",
     "name": "Xiaomi: MiMo-V2.5-Pro",
     "provider": "xiaomi",
-    "context_length": 1048576,
+    "context_length": 1050000,
     "pricing": {
       "prompt": 4.35e-7,
       "completion": 8.7e-7
@@ -903,7 +987,7 @@
     "id": "xiaomi/mimo-v2.5",
     "name": "Xiaomi: MiMo-V2.5",
     "provider": "xiaomi",
-    "context_length": 1048576,
+    "context_length": 1050000,
     "pricing": {
       "prompt": 1.4e-7,
       "completion": 2.8e-7
@@ -965,8 +1049,8 @@
     "provider": "moonshotai",
     "context_length": 262144,
     "pricing": {
-      "prompt": 6.84e-7,
-      "completion": 0.00000342
+      "prompt": 5.89e-7,
+      "completion": 0.00000248
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -987,7 +1071,7 @@
     "id": "z-ai/glm-5.1",
     "name": "Z.ai: GLM 5.1",
     "provider": "z-ai",
-    "context_length": 202752,
+    "context_length": 204800,
     "pricing": {
       "prompt": 9.66e-7,
       "completion": 0.000003036
@@ -1025,8 +1109,8 @@
     "provider": "google",
     "context_length": 262144,
     "pricing": {
-      "prompt": 1.2e-7,
-      "completion": 3.7e-7
+      "prompt": 1e-7,
+      "completion": 3.4e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -1073,8 +1157,8 @@
     "provider": "arcee-ai",
     "context_length": 262144,
     "pricing": {
-      "prompt": 2.5e-7,
-      "completion": 8e-7
+      "prompt": 2.2e-7,
+      "completion": 8.5e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -1131,7 +1215,7 @@
     "id": "kwaipilot/kat-coder-pro-v2",
     "name": "Kwaipilot: KAT-Coder-Pro V2",
     "provider": "kwaipilot",
-    "context_length": 256000,
+    "context_length": 262144,
     "pricing": {
       "prompt": 3e-7,
       "completion": 0.0000012
@@ -1227,7 +1311,7 @@
     "id": "nvidia/nemotron-3-super-120b-a12b:free",
     "name": "NVIDIA: Nemotron 3 Super (free)",
     "provider": "nvidia",
-    "context_length": 1000000,
+    "context_length": 262144,
     "pricing": {
       "prompt": 0,
       "completion": 0
@@ -1335,7 +1419,7 @@
     "id": "google/gemini-3.1-flash-image-preview",
     "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)",
     "provider": "google",
-    "context_length": 131072,
+    "context_length": 65536,
     "pricing": {
       "prompt": 5e-7,
       "completion": 0.000003
@@ -1361,8 +1445,8 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 2.6e-7,
-      "completion": 0.0000026
+      "prompt": 1.95e-7,
+      "completion": 0.00000156
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -1395,7 +1479,7 @@
     "id": "google/gemini-3.1-pro-preview-customtools",
     "name": "Google: Gemini 3.1 Pro Preview Custom Tools",
     "provider": "google",
-    "context_length": 1048756,
+    "context_length": 1048576,
     "pricing": {
       "prompt": 0.000002,
       "completion": 0.000012
@@ -1529,7 +1613,7 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 1.1e-7,
+      "prompt": 1.2e-7,
       "completion": 8e-7
     },
     "isFree": false,
@@ -1635,9 +1719,9 @@
     "id": "z-ai/glm-4.7-flash",
     "name": "Z.ai: GLM 4.7 Flash",
     "provider": "z-ai",
-    "context_length": 200000,
+    "context_length": 202752,
     "pricing": {
-      "prompt": 6.05e-8,
+      "prompt": 6e-8,
       "completion": 4e-7
     },
     "isFree": false,
@@ -1695,7 +1779,7 @@
     "id": "z-ai/glm-4.7",
     "name": "Z.ai: GLM 4.7",
     "provider": "z-ai",
-    "context_length": 202752,
+    "context_length": 204800,
     "pricing": {
       "prompt": 4e-7,
       "completion": 0.00000175
@@ -1771,18 +1855,6 @@
     "pricing": {
       "prompt": 0.00000175,
       "completion": 0.000014
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "mistralai/devstral-2512",
-    "name": "Mistral: Devstral 2 2512",
-    "provider": "mistralai",
-    "context_length": 262144,
-    "pricing": {
-      "prompt": 4e-7,
-      "completion": 0.000002
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -1968,18 +2040,6 @@
     "savedFromDeveloper": false
   },
   {
-    "id": "openai/gpt-5.1-chat",
-    "name": "OpenAI: GPT-5.1 Chat",
-    "provider": "openai",
-    "context_length": 128000,
-    "pricing": {
-      "prompt": 0.00000125,
-      "completion": 0.00001
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
     "id": "openai/gpt-5.1-codex",
     "name": "OpenAI: GPT-5.1-Codex",
     "provider": "openai",
@@ -2091,7 +2151,7 @@
     "id": "qwen/qwen3-vl-32b-instruct",
     "name": "Qwen: Qwen3 VL 32B Instruct",
     "provider": "qwen",
-    "context_length": 262144,
+    "context_length": 131072,
     "pricing": {
       "prompt": 1.04e-7,
       "completion": 4.16e-7
@@ -2139,10 +2199,10 @@
     "id": "qwen/qwen3-vl-8b-thinking",
     "name": "Qwen: Qwen3 VL 8B Thinking",
     "provider": "qwen",
-    "context_length": 256000,
+    "context_length": 131072,
     "pricing": {
-      "prompt": 1.17e-7,
-      "completion": 0.000001365
+      "prompt": 1.8e-7,
+      "completion": 0.0000021
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2151,7 +2211,7 @@
     "id": "qwen/qwen3-vl-8b-instruct",
     "name": "Qwen: Qwen3 VL 8B Instruct",
     "provider": "qwen",
-    "context_length": 256000,
+    "context_length": 262144,
     "pricing": {
       "prompt": 1.17e-7,
       "completion": 4.55e-7
@@ -2172,30 +2232,6 @@
     "savedFromDeveloper": false
   },
   {
-    "id": "openai/o3-deep-research",
-    "name": "OpenAI: o3 Deep Research",
-    "provider": "openai",
-    "context_length": 200000,
-    "pricing": {
-      "prompt": 0.00001,
-      "completion": 0.00004
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "openai/o4-mini-deep-research",
-    "name": "OpenAI: o4 Mini Deep Research",
-    "provider": "openai",
-    "context_length": 200000,
-    "pricing": {
-      "prompt": 0.000002,
-      "completion": 0.000008
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
     "id": "google/gemini-2.5-flash-image",
     "name": "Google: Nano Banana (Gemini 2.5 Flash Image)",
     "provider": "google",
@@ -2211,10 +2247,10 @@
     "id": "qwen/qwen3-vl-30b-a3b-thinking",
     "name": "Qwen: Qwen3 VL 30B A3B Thinking",
     "provider": "qwen",
-    "context_length": 131072,
+    "context_length": 262144,
     "pricing": {
-      "prompt": 1.3e-7,
-      "completion": 0.00000156
+      "prompt": 2e-7,
+      "completion": 0.0000024
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2247,7 +2283,7 @@
     "id": "z-ai/glm-4.6",
     "name": "Z.ai: GLM 4.6",
     "provider": "z-ai",
-    "context_length": 202752,
+    "context_length": 204800,
     "pricing": {
       "prompt": 5e-7,
       "completion": 0.000002
@@ -2309,8 +2345,8 @@
     "provider": "qwen",
     "context_length": 131072,
     "pricing": {
-      "prompt": 2.6e-7,
-      "completion": 0.0000026
+      "prompt": 4e-7,
+      "completion": 0.000004
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2319,7 +2355,7 @@
     "id": "qwen/qwen3-vl-235b-a22b-instruct",
     "name": "Qwen: Qwen3 VL 235B A22B Instruct",
     "provider": "qwen",
-    "context_length": 131072,
+    "context_length": 262144,
     "pricing": {
       "prompt": 2.1e-7,
       "completion": 0.0000019
@@ -2352,22 +2388,10 @@
     "savedFromDeveloper": false
   },
   {
-    "id": "openai/gpt-5-codex",
-    "name": "OpenAI: GPT-5 Codex",
-    "provider": "openai",
-    "context_length": 400000,
-    "pricing": {
-      "prompt": 0.00000125,
-      "completion": 0.00001
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
     "id": "deepseek/deepseek-v3.1-terminus",
     "name": "DeepSeek: DeepSeek V3.1 Terminus",
     "provider": "deepseek",
-    "context_length": 131072,
+    "context_length": 163840,
     "pricing": {
       "prompt": 2.7e-7,
       "completion": 0.000001
@@ -2393,8 +2417,8 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 9.75e-8,
-      "completion": 7.8e-7
+      "prompt": 1.5e-7,
+      "completion": 0.0000012
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2429,8 +2453,8 @@
     "provider": "qwen",
     "context_length": 1000000,
     "pricing": {
-      "prompt": 2.6e-7,
-      "completion": 7.8e-7
+      "prompt": 4e-7,
+      "completion": 0.0000012
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2463,10 +2487,10 @@
     "id": "qwen/qwen3-30b-a3b-thinking-2507",
     "name": "Qwen: Qwen3 30B A3B Thinking 2507",
     "provider": "qwen",
-    "context_length": 131072,
+    "context_length": 81920,
     "pricing": {
-      "prompt": 1.3e-7,
-      "completion": 0.00000156
+      "prompt": 2e-7,
+      "completion": 0.0000024
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2544,18 +2568,6 @@
     "savedFromDeveloper": false
   },
   {
-    "id": "openai/gpt-5-chat",
-    "name": "OpenAI: GPT-5 Chat",
-    "provider": "openai",
-    "context_length": 128000,
-    "pricing": {
-      "prompt": 0.00000125,
-      "completion": 0.00001
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
     "id": "openai/gpt-5",
     "name": "OpenAI: GPT-5",
     "provider": "openai",
@@ -2610,7 +2622,7 @@
     "context_length": 131072,
     "pricing": {
       "prompt": 3e-8,
-      "completion": 1.3e-7
+      "completion": 1.4e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2655,7 +2667,7 @@
     "id": "qwen/qwen3-coder-30b-a3b-instruct",
     "name": "Qwen: Qwen3 Coder 30B A3B Instruct",
     "provider": "qwen",
-    "context_length": 160000,
+    "context_length": 262144,
     "pricing": {
       "prompt": 7e-8,
       "completion": 2.7e-7
@@ -2669,8 +2681,8 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 1e-7,
-      "completion": 3e-7
+      "prompt": 4.815e-8,
+      "completion": 1.9305e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2705,8 +2717,8 @@
     "provider": "qwen",
     "context_length": 262144,
     "pricing": {
-      "prompt": 3e-7,
-      "completion": 0.000003
+      "prompt": 2.3e-7,
+      "completion": 0.0000023
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2715,7 +2727,7 @@
     "id": "qwen/qwen3-coder",
     "name": "Qwen: Qwen3 Coder 480B A35B",
     "provider": "qwen",
-    "context_length": 1048576,
+    "context_length": 262144,
     "pricing": {
       "prompt": 3e-7,
       "completion": 0.000001
@@ -2823,7 +2835,7 @@
     "id": "baidu/ernie-4.5-vl-424b-a47b",
     "name": "Baidu: ERNIE 4.5 VL 424B A47B ",
     "provider": "baidu",
-    "context_length": 131072,
+    "context_length": 123000,
     "pricing": {
       "prompt": 4.2e-7,
       "completion": 0.00000125
@@ -2835,10 +2847,10 @@
     "id": "mistralai/mistral-small-3.2-24b-instruct",
     "name": "Mistral: Mistral Small 3.2 24B",
     "provider": "mistralai",
-    "context_length": 131072,
+    "context_length": 256000,
     "pricing": {
-      "prompt": 1e-7,
-      "completion": 3e-7
+      "prompt": 7.5e-8,
+      "completion": 2e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -2991,7 +3003,7 @@
     "id": "meta-llama/llama-guard-4-12b",
     "name": "Meta: Llama Guard 4 12B",
     "provider": "meta-llama",
-    "context_length": 163840,
+    "context_length": 1048576,
     "pricing": {
       "prompt": 1.8e-7,
       "completion": 1.8e-7
@@ -3005,8 +3017,8 @@
     "provider": "qwen",
     "context_length": 131072,
     "pricing": {
-      "prompt": 1.3e-7,
-      "completion": 5.2e-7
+      "prompt": 1.2e-7,
+      "completion": 5e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -3027,10 +3039,10 @@
     "id": "qwen/qwen3-14b",
     "name": "Qwen: Qwen3 14B",
     "provider": "qwen",
-    "context_length": 131702,
+    "context_length": 131072,
     "pricing": {
-      "prompt": 1.2e-7,
-      "completion": 2.4e-7
+      "prompt": 2.275e-7,
+      "completion": 9.1e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -3147,7 +3159,7 @@
     "id": "meta-llama/llama-4-scout",
     "name": "Meta: Llama 4 Scout",
     "provider": "meta-llama",
-    "context_length": 10000000,
+    "context_length": 1310720,
     "pricing": {
       "prompt": 1e-7,
       "completion": 3e-7
@@ -3228,30 +3240,6 @@
     "savedFromDeveloper": false
   },
   {
-    "id": "openai/gpt-4o-mini-search-preview",
-    "name": "OpenAI: GPT-4o-mini Search Preview",
-    "provider": "openai",
-    "context_length": 128000,
-    "pricing": {
-      "prompt": 1.5e-7,
-      "completion": 6e-7
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "openai/gpt-4o-search-preview",
-    "name": "OpenAI: GPT-4o Search Preview",
-    "provider": "openai",
-    "context_length": 128000,
-    "pricing": {
-      "prompt": 0.0000025,
-      "completion": 0.00001
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
     "id": "rekaai/reka-flash-3",
     "name": "Reka Flash 3",
     "provider": "rekaai",
@@ -3267,10 +3255,10 @@
     "id": "google/gemma-3-27b-it",
     "name": "Google: Gemma 3 27B",
     "provider": "google",
-    "context_length": 131072,
+    "context_length": 262144,
     "pricing": {
-      "prompt": 1e-7,
-      "completion": 3e-7
+      "prompt": 8e-8,
+      "completion": 4.5e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -3363,7 +3351,7 @@
     "id": "qwen/qwen2.5-vl-72b-instruct",
     "name": "Qwen: Qwen2.5 VL 72B Instruct",
     "provider": "qwen",
-    "context_length": 131072,
+    "context_length": 128000,
     "pricing": {
       "prompt": 8e-7,
       "completion": 0.000001
@@ -3423,7 +3411,7 @@
     "id": "deepseek/deepseek-r1-distill-llama-70b",
     "name": "DeepSeek: R1 Distill Llama 70B",
     "provider": "deepseek",
-    "context_length": 128000,
+    "context_length": 8192,
     "pricing": {
       "prompt": 8e-7,
       "completion": 8e-7
@@ -3471,10 +3459,10 @@
     "id": "deepseek/deepseek-chat",
     "name": "DeepSeek: DeepSeek V3",
     "provider": "deepseek",
-    "context_length": 131072,
+    "context_length": 163840,
     "pricing": {
-      "prompt": 2.002e-7,
-      "completion": 8.001e-7
+      "prompt": 2.574e-7,
+      "completion": 0.0000010287
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -3591,7 +3579,7 @@
     "id": "qwen/qwen-2.5-coder-32b-instruct",
     "name": "Qwen2.5 Coder 32B Instruct",
     "provider": "qwen",
-    "context_length": 128000,
+    "context_length": 32768,
     "pricing": {
       "prompt": 6.6e-7,
       "completion": 0.000001
@@ -3603,7 +3591,7 @@
     "id": "thedrummer/unslopnemo-12b",
     "name": "TheDrummer: UnslopNemo 12B",
     "provider": "thedrummer",
-    "context_length": 32768,
+    "context_length": 1024000,
     "pricing": {
       "prompt": 4e-7,
       "completion": 4e-7
@@ -3615,7 +3603,7 @@
     "id": "anthracite-org/magnum-v4-72b",
     "name": "Magnum v4 72B",
     "provider": "anthracite-org",
-    "context_length": 32768,
+    "context_length": 16384,
     "pricing": {
       "prompt": 0.000003,
       "completion": 0.000005
@@ -3627,34 +3615,10 @@
     "id": "qwen/qwen-2.5-7b-instruct",
     "name": "Qwen: Qwen2.5 7B Instruct",
     "provider": "qwen",
-    "context_length": 131072,
+    "context_length": 32768,
     "pricing": {
-      "prompt": 4e-8,
-      "completion": 1e-7
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "inflection/inflection-3-pi",
-    "name": "Inflection: Inflection 3 Pi",
-    "provider": "inflection",
-    "context_length": 8000,
-    "pricing": {
-      "prompt": 0.0000025,
-      "completion": 0.00001
-    },
-    "isFree": false,
-    "savedFromDeveloper": false
-  },
-  {
-    "id": "inflection/inflection-3-productivity",
-    "name": "Inflection: Inflection 3 Productivity",
-    "provider": "inflection",
-    "context_length": 8000,
-    "pricing": {
-      "prompt": 0.0000025,
-      "completion": 0.00001
+      "prompt": 1e-7,
+      "completion": 2e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -3675,7 +3639,7 @@
     "id": "meta-llama/llama-3.2-1b-instruct",
     "name": "Meta: Llama 3.2 1B Instruct",
     "provider": "meta-llama",
-    "context_length": 131072,
+    "context_length": 60000,
     "pricing": {
       "prompt": 2.7e-8,
       "completion": 2.01e-7
@@ -3689,8 +3653,8 @@
     "provider": "meta-llama",
     "context_length": 131072,
     "pricing": {
-      "prompt": 5.09e-8,
-      "completion": 3.35e-7
+      "prompt": 5e-8,
+      "completion": 3.3e-7
     },
     "isFree": false,
     "savedFromDeveloper": false
@@ -3699,7 +3663,7 @@
     "id": "qwen/qwen-2.5-72b-instruct",
     "name": "Qwen2.5 72B Instruct",
     "provider": "qwen",
-    "context_length": 131072,
+    "context_length": 32768,
     "pricing": {
       "prompt": 3.6e-7,
       "completion": 4e-7
@@ -3903,7 +3867,7 @@
     "id": "microsoft/wizardlm-2-8x22b",
     "name": "WizardLM-2 8x22B",
     "provider": "microsoft",
-    "context_length": 65536,
+    "context_length": 65535,
     "pricing": {
       "prompt": 6.2e-7,
       "completion": 6.2e-7
@@ -4035,7 +3999,7 @@
     "id": "gryphe/mythomax-l2-13b",
     "name": "MythoMax 13B",
     "provider": "gryphe",
-    "context_length": 4096,
+    "context_length": 8192,
     "pricing": {
       "prompt": 6e-8,
       "completion": 6e-8
