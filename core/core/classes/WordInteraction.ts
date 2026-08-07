@@ -3,15 +3,15 @@
  */
 
 import { detectLanguages, Dictionary, OpenAIClient } from "core";
-import { DeveloperSelectedAiTargets } from "core/ai/Readme.ts";
 import { getCurrentQuota } from "core/ai/Renewal.ts";
 import { Flashcard, Preferences, User } from "database";
 import { text } from "../../languages/index.ts";
 import fs from "fs";
 import { getAiRequestOptions } from "core/ai/aiOptions.ts";
-import { BotAiTargets } from "core/ai/const.ts";
 import { EmbedBuilder } from "discord.js";
 import { DiscordClient } from "discord";
+import instructions from "../../../../instructions/translator.txt";
+import { ModelUpdaterWorker } from "../jobs/AvailableAiModels.ts";
 
 /**
  * This enums will be used to identify the type of word typing. Suggested variants of use in chatbots is:
@@ -345,14 +345,14 @@ export class WordInteraction {
   ): Promise<{ front: string[]; back: string[]; examples: string[] }> {
     const quota = await getCurrentQuota(
       this.user.id,
-      BotAiTargets.TRANSLATE_AND_EXPAND,
+      ModelUpdaterWorker.translate_and_expand.name,
     );
 
     if (!quota) {
       throw new Error(text("base_interaction.quota_end", this.languageCode));
     }
 
-    const SELECTED_AI_MODEL = BotAiTargets.TRANSLATE_AND_EXPAND;
+    const SELECTED_AI_MODEL = ModelUpdaterWorker.translate_and_expand.id;
     const wordString = data.join(", ");
 
     const rq = `Translate from ${sourceLanguage} (${cefr}) to ${targetLanguage}. Target CEFR level: ${cefr}. Words/Sentences: ${wordString}.`;
@@ -361,12 +361,11 @@ export class WordInteraction {
 
     const { temperature, maxTokens } = getAiRequestOptions(
       SELECTED_AI_MODEL,
-      BotAiTargets.TRANSLATE_AND_EXPAND,
     );
 
     const response = await OpenAIClient.responses.create({
       model: SELECTED_AI_MODEL,
-      instructions: fs.readFileSync("instructions/translator.txt", "utf-8"),
+      instructions,
       input: rq,
       temperature: temperature,
       max_output_tokens: maxTokens,

@@ -14,22 +14,48 @@ export class GlobalWorker {
     await this.tick();
     setInterval(async () => await this.tick(), 3 * 60 * 60 * 1000);
 
-    const worker = new ModelUpdaterWorker();
-    await worker.updateModels();
-
-    setInterval(async () => await worker.updateModels(), 15000);
-
-    await AnalyticsService.ensureTodayExists();
+    // every 3 hours and when started
+    await ModelUpdaterWorker.updateModels();
     setInterval(
-      async () => {
-        await TelegramClient.api.sendMessage({
-          chat_id: "@medsa_public_reports",
-          text: await AnalyticsService.generateReportString(),
-          parse_mode: "HTML",
-        });
-      },
-      10000,
+      async () => await ModelUpdaterWorker.updateModels(),
+      3 * 60 * 60 * 1000,
     );
+
+    // calculate ms to next 17:59 today
+
+    const target_get_time = () => {
+      const now = new Date();
+      const target = new Date(now);
+
+      target.setHours(17, 59, 0, 0);
+
+      if (now.getTime() >= target.getTime()) {
+        target.setDate(target.getDate() + 1);
+      }
+      return target.getTime() - now.getTime();
+    };
+
+    setTimeout(async () => {
+      await TelegramClient.api.sendMessage({
+        chat_id: "@medsa_public_reports",
+        text: await AnalyticsService.generateReportString(),
+        parse_mode: "HTML",
+      });
+      await AnalyticsService.ensureTodayExists();
+
+      // planning next everyday's reports
+      setInterval(
+        async () => {
+          await TelegramClient.api.sendMessage({
+            chat_id: "@medsa_public_reports",
+            text: await AnalyticsService.generateReportString(),
+            parse_mode: "HTML",
+          });
+          await AnalyticsService.ensureTodayExists();
+        },
+        24 * 60 * 60 * 1000,
+      );
+    }, target_get_time());
   }
 
   static async tick() {

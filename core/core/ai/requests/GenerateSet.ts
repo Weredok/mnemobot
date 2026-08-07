@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { Flashcard } from "database";
 import { getCurrentQuota } from "../Renewal.ts";
 import { DeveloperSelectedAiTargets } from "../Readme.ts";
+import instructions from "../../../../instructions/generateSet.txt";
 
 async function generateSet(source: string, target: string, cefr: CEFR, topic: string, count: number, userId: number, functions: Array<((any?) => (any | Promise<any>))>, args: Array<any>): Promise<Flashcard[]> {
 
@@ -15,7 +16,7 @@ async function generateSet(source: string, target: string, cefr: CEFR, topic: st
 
     const response = await OpenAIClient.responses.create({
         model: "gpt-4o",
-        instructions: fs.readFileSync("../../instructions/generateSet.txt", "utf-8"),
+        instructions,
         input: JSON.stringify({
             source,
             target,
