@@ -17,6 +17,9 @@ export class PublicReport {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column("boolean", { default: false })
+  isSent: boolean
+
   // AI Monitoring Block
   @Column("int", { default: 0 })
   aiRequestsCount: number;

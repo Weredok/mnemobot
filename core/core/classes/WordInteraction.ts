@@ -10,7 +10,6 @@ import fs from "fs";
 import { getAiRequestOptions } from "core/ai/aiOptions.ts";
 import { EmbedBuilder } from "discord.js";
 import { DiscordClient } from "discord";
-import instructions from "../../../../instructions/translator.txt";
 import { ModelUpdaterWorker } from "../jobs/AvailableAiModels.ts";
 
 /**
@@ -365,7 +364,26 @@ export class WordInteraction {
 
     const response = await OpenAIClient.responses.create({
       model: SELECTED_AI_MODEL,
-      instructions,
+      instructions: `[SYSTEM]
+OUTPUT_FORMAT: RAW_JSON
+NO_THOUGHTS. NO_EXPLANATIONS. NO_CONVERSATION. 
+
+Task: Translate from {from} to {to}.
+Output only valid JSON conforming to the schema below. If input is noise, return {"front":[], "back":[], "examples":[]}.
+
+Schema:
+{"front": ["term"], "back": ["translation"], "examples": ["ex1", "ex2", "ex3", "ex4", "ex5"]}
+
+Grammar Rules for examples:
+0: Simple declarative. 
+1: Simple declarative. 
+2: Complex (2 clauses). 
+3: Exclamatory (!). 
+4: Interrogative (?).
+
+Input: "{input}"
+JSON OUTPUT EXAMPLE: {"front":["закат солнца", "закат", "сумерки"], "back":["sunset", "dusk", "twilight"], 
+    "examples": ["Закаты Киева - наилучшее, что Артём видел когда-либо. (Kyiv's sunsets are the best Artem has ever seen.)", "Я собираюсь признаться ей в любви на закате сегодня (I'm going to confess my love to her at sunset tonight.)", "Начиная с 22-го июня солнечный день будет короче, сейчас в Харькове рассвет наступает в 04:57, а закат - в 21:53 (Starting from June 22nd, the sunny day will be shorter; now in Kharkiv, sunrise occurs at 04:57, and sunset - at 21:53.)"] }`,
       input: rq,
       temperature: temperature,
       max_output_tokens: maxTokens,

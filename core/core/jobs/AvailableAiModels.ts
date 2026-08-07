@@ -78,7 +78,7 @@ export class ModelUpdaterWorker {
       const data = await response.json();
       const fetchedModels: any[] = data.data;
 
-      const existingModels = Array.from(this.global);
+      const existingModels = this.global || [];
 
       const newModelsList: AIModel[] = fetchedModels.map((m: any) => {
         const pricePrompt = parseFloat(m.pricing?.prompt || "0");
