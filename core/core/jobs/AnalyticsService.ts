@@ -240,4 +240,21 @@ export class AnalyticsService {
       .where("date = :date", { date })
       .execute();
   }
+
+ static async recordAiParsingError(model: string) {
+    await this.ensureTodayExists();
+    const date = new Date().toISOString().slice(0, 10);
+
+    await datasource
+      .getRepository(PublicReport)
+      .createQueryBuilder()
+      .update()
+      .set({
+        aiParsingError: () => '"aiParsingError" + 1',
+        aiParsingErrorModels: () => `array_append(COALESCE("aiParsingErrorModels", '{}'), :model)`
+      })
+      .setParameter("model", model)
+      .where("date = :date", { date })
+      .execute();
+  }
 }

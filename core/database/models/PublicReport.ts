@@ -37,6 +37,12 @@ export class PublicReport {
   @Column("float", { default: 0 })
   aiCostUsd: number;
 
+  @Column("float", { default: 0 })
+  aiParsingError: number
+
+  @Column("text", { array: true, default: [] })
+  aiParsingErrorModels: string[]
+
   // Database Usage Block
   @Column("int", { default: 0 })
   totalFlashcards: number;

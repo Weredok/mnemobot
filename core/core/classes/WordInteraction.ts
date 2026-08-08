@@ -12,6 +12,7 @@ import { EmbedBuilder } from "discord.js";
 import { DiscordClient } from "discord";
 import { ModelUpdaterWorker } from "../jobs/AvailableAiModels.ts";
 import { TelegramClient } from "telegram";
+import { AnalyticsService } from "../jobs/AnalyticsService.ts";
 
 /**
  * This enums will be used to identify the type of word typing. Suggested variants of use in chatbots is:
@@ -150,9 +151,7 @@ export class WordInteraction {
         .length,
     );
 
-    console.log(this.preferences.splitters)
-
-
+    console.log(this.preferences.splitters);
 
     this.enter.quantity =
       data.split(this.preferences.splitters.ForProvidingBatchOfWords).length +
@@ -365,6 +364,7 @@ export class WordInteraction {
       flashcard.user = this.user.id;
 
       await flashcard.save();
+      await AnalyticsService.recordEvent("flashcard");
       this.dictionary.flashcards.push(flashcard);
       this.flashcards_created.push(flashcard);
       flashcards.push(flashcard);
@@ -381,7 +381,7 @@ export class WordInteraction {
     cefr: string = "B1",
     sourceLanguage: string,
     targetLanguage: string,
-  ): Promise<{ front: string[]; back: string[]; examples: string[] }> {
+  ) {
     const quota = await getCurrentQuota(
       this.user.id,
       ModelUpdaterWorker.translate_and_expand.id,
@@ -397,7 +397,12 @@ export class WordInteraction {
     const SELECTED_AI_MODEL = ModelUpdaterWorker.translate_and_expand.id;
     const wordString = data.join(", ");
 
-    const rq = `Translate from ${sourceLanguage} (${cefr}) to ${targetLanguage}. Target CEFR level: ${cefr}. Words/Sentences: ${wordString}.`;
+    const rq = `Translate to target CEFR level: ${cefr}. Words/Sentences: ${wordString}. User's interface language: ${this.preferences.interfaceLanguage}. Native language: ${this.user.languages[0]}. List for user's current languages list for learning: ${Object.entries(
+      this.user.knowing,
+    )
+      .map(([lang, cefr]) => `${lang}: ${cefr}`)
+      .join(", ")}`;
+    console.log(rq);
 
     let datestamp = Date.now();
 
@@ -425,24 +430,56 @@ export class WordInteraction {
       model: SELECTED_AI_MODEL,
       instructions: `[SYSTEM]
 OUTPUT_FORMAT: RAW_JSON
-NO_THOUGHTS. NO_EXPLANATIONS. NO_CONVERSATION. 
+NO_THOUGHTS. NO_EXPLANATIONS. NO_CONVERSATION. NO_MARKDOWN_FENCES.
 
-Task: Translate from {from} to {to}.
-Output only valid JSON conforming to the schema below. If input is noise, return {"front":[], "back":[], "examples":[]}.
+Task: Translate and format user input for language learning flashcards.
+
+RULES:
+
+1. STRICT JSON ONLY:
+Output only valid RAW_JSON conforming strictly to the schema. Do not enclose in markdown blocks (\`\`\`json).
+
+2. DIRECTION & AUTO-SWAP (NATIVE = FRONT, LEARNING = BACK):
+- "front": ALWAYS array of terms in user's NATIVE language.
+- "back": ALWAYS array of terms in user's TARGET (LEARNING) language.
+- Auto-Swap: If user provides input in reverse (e.g., Learning -> Native), detect this and automatically swap so that "front" is Native and "back" is Learning.
+
+3. LEMMATIZATION & SYNONYMS:
+- Single Words: Convert single words to their canonical base form (infinitive for verbs, singular for nouns) unless the user explicitly provided a conjugated/plural form or full sentence.
+- Synonyms Limit: Auto-generate no more than 2-3 of the most natural, frequent, and precise equivalents. If the user explicitly provided multiple synonyms in their input, preserve all of them.
+
+4. EXAMPLES & CEFR CHALLENGE:
+- Count: Generate EXACTLY 3 examples.
+- CEFR Level: Vocabulary and grammar in examples MUST target or slightly exceed the user's current CEFR level (${cefr}) to actively push their learning forward.
+- Mandatory Format: "Sentence in learning language. (Native language translation in parentheses)"
+- Structure:
+  0: Natural context statement (medium length, realistic usage).
+  1: Exclamatory or imperative (!).
+  2: Interrogative / Question (?).
+
+5. LANGUAGE NAMES:
+- "source_language" (Native) and "target_language" (Learning) MUST be full English names, capitalized (e.g., "English", "Ukrainian", "Spanish", "German").
+
+6. NOISE / SPAM HANDLING:
+- If input is meaningless noise, spam, or unparseable, return {"ignored": true, "front": [], "back": [], "examples": [], "source_language": "", "target_language": ""}.
+- Otherwise, set "ignored": false.
 
 Schema:
-{"front": ["term"], "back": ["translation"], "examples": ["ex1", "ex2", "ex3", "ex4", "ex5"]}
-
-Grammar Rules for examples:
-0: Simple declarative. 
-1: Simple declarative. 
-2: Complex (2 clauses). 
-3: Exclamatory (!). 
-4: Interrogative (?).
+{
+  "front": ["term in native language"],
+  "back": ["translation in learning language"],
+  "examples": [
+    "Learning language sentence. (Native language translation)",
+    "Learning language exclamation! (Native language translation)",
+    "Learning language question? (Native language translation)"
+  ],
+  "source_language": "Full English Name",
+  "target_language": "Full English Name",
+  "ignored": false
+}
 
 Input: "{input}"
-JSON OUTPUT EXAMPLE: {"front":["закат солнца", "закат", "сумерки"], "back":["sunset", "dusk", "twilight"], 
-    "examples": ["Закаты Киева - наилучшее, что Артём видел когда-либо. (Kyiv's sunsets are the best Artem has ever seen.)", "Я собираюсь признаться ей в любви на закате сегодня (I'm going to confess my love to her at sunset tonight.)", "Начиная с 22-го июня солнечный день будет короче, сейчас в Харькове рассвет наступает в 04:57, а закат - в 21:53 (Starting from June 22nd, the sunny day will be shorter; now in Kharkiv, sunrise occurs at 04:57, and sunset - at 21:53.)"] }`,
+JSON OUTPUT EXAMPLE: {"front":["закат", "сумерки"], "back":["sunset", "twilight"], "examples": ["We watched the sunset from the rooftop terrace. (Мы наблюдали за закатом с террасы на крыше.)", "What a breathtaking sunset tonight! (Какой потрясающий сегодня закат!)", "What time does the sunset happen in summer here? (Во сколько здесь заходит солнце летом?)"], "source_language": "Russian", "target_language": "English", "ignored": false}`,
       input: rq,
       temperature: temperature,
       max_output_tokens: maxTokens,
@@ -458,6 +495,19 @@ JSON OUTPUT EXAMPLE: {"front":["закат солнца", "закат", "сум�
       const parsedAiResult = JSON.parse(response.output_text);
       console.log("[AI DEBUG] Parsed:", parsedAiResult);
 
+      if (
+        !parsedAiResult.front.length ||
+        !parsedAiResult.back.length ||
+        !parsedAiResult.examples.length
+      ) {
+        await AnalyticsService.recordAiParsingError(SELECTED_AI_MODEL);
+        await this.askAI(data, cefr, sourceLanguage, targetLanguage);
+        throw new Error("AI_PARSE_ERROR. Retrying...");
+      }
+
+      this.sourceLanguage = parsedAiResult.source_language;
+      this.targetLanguage = parsedAiResult.target_language;
+
       this.user.aiUsing.push({
         timestamp: Date.now(),
         usage: {
@@ -470,15 +520,28 @@ JSON OUTPUT EXAMPLE: {"front":["закат солнца", "закат", "сум�
         ping: Date.now() - datestamp,
       });
 
+      await AnalyticsService.recordAiUsage(
+        SELECTED_AI_MODEL,
+        response.usage.input_tokens,
+        response.usage.output_tokens,
+        ModelUpdaterWorker.translate_and_expand.pricing.prompt *
+          response.usage.input_tokens +
+          ModelUpdaterWorker.translate_and_expand.pricing.completion *
+            response.usage.output_tokens,
+      );
+
       await this.user.save();
 
       return {
         front: parsedAiResult.front || data,
         back: parsedAiResult.back || [],
         examples: parsedAiResult.examples || [],
+        target_language: parsedAiResult.target_language || targetLanguage,
+        source_language: parsedAiResult.source_language || sourceLanguage,
       };
     } catch (e) {
       console.error("[AI ERROR] Failed to parse JSON:", e);
+      await AnalyticsService.recordAiParsingError(SELECTED_AI_MODEL);
       return { front: data, back: ["AI_PARSE_ERROR"], examples: [] };
     }
   }
