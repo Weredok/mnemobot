@@ -80,8 +80,8 @@
       "add_new_language": "Add new language",
       "read_about_interaction_bot": "Read about interaction bot"
     },
-    
-  "spawn": {
+
+    "spawn": {
       "description": "Select filters to spawn needen flashcards.",
       "quality_asc": "Quality",
       "strength_asc": "Strength",
@@ -160,6 +160,13 @@
     "time_is_up": "Time is up. AI request fallback needs to be implemented.",
     "no_ai_quota": "You have no quota left for AI features. Please contact the developer for more.",
     "found_similar_title": "($i) Found the exact word translated from $source to $target",
-    "loading_placeholder": "..."
+    "loading_placeholder": "...",
+    "WORD_ACTION_ADDED": "added",
+    "WORD_ACTION_IMPORTED": "imported",
+    "RESPONSE_BATCH": "You've {action} {count} new flashcards to your dictionary {langPair}, total of {wordsCount} new words and {translationsCount} translations.",
+    "RESPONSE_SINGLE_MANUAL": "You've {action} `{word}` to your dictionary {langPair}. Provided translation — {translation}.",
+    "RESPONSE_SINGLE_AI": "You've {action} `{word}` to your dictionary {langPair}. AI provided translation — {translation}.",
+    "EXAMPLES_MANUAL_HEADER": "Parsed examples:",
+    "EXAMPLES_AI_HEADER": "Also, AI generated some examples for this word:"
   }
 }

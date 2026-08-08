@@ -123,7 +123,7 @@ export class ModelUpdaterWorker {
     // selecting default ai model
     // in beta and alpha tests may be hardcoded
     this.default = this.free.filter(
-      (m) => m.name === "inclusionai/ling-3.0-flash:free",
+      (m) => m.id === "nvidia/nemotron-nano-9b-v2:free",
     )[0];
 
     this.creative_topics = this.default;
@@ -134,5 +134,6 @@ export class ModelUpdaterWorker {
     this.system_public_report = this.default;
     this.smm_content_generation = this.default;
     this.examination = this.default;
+
   }
 }

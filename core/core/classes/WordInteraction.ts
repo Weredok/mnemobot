@@ -11,6 +11,7 @@ import { getAiRequestOptions } from "core/ai/aiOptions.ts";
 import { EmbedBuilder } from "discord.js";
 import { DiscordClient } from "discord";
 import { ModelUpdaterWorker } from "../jobs/AvailableAiModels.ts";
+import { TelegramClient } from "telegram";
 
 /**
  * This enums will be used to identify the type of word typing. Suggested variants of use in chatbots is:
@@ -141,11 +142,23 @@ export class WordInteraction {
       };
     }
 
+    console.log(
+      data.split(this.preferences.splitters.ForProvidingBatchOfWords).length,
+    );
+    console.log(
+      data.split(this.preferences.splitters.ForProvidingBatchOfSentences)
+        .length,
+    );
+
+    console.log(this.preferences.splitters)
+
+
+
     this.enter.quantity =
       data.split(this.preferences.splitters.ForProvidingBatchOfWords).length +
         data.split(this.preferences.splitters.ForProvidingBatchOfSentences)
           .length >
-      1
+      2
         ? InputQuantity.Batch
         : InputQuantity.Single;
 
@@ -265,6 +278,9 @@ export class WordInteraction {
       `\\s*(${splitters.ForSingleWordWithProvidedTranslation})\\s*`,
     );
 
+    const exampleSplitter = splitters.ForProvidingExamples || "//";
+    const synonymSplitter = splitters.ForProvidingSynonyms || ",";
+
     const lines = data.split(batchRegex);
 
     for (let i = 0; i < lines.length; i++) {
@@ -277,24 +293,48 @@ export class WordInteraction {
         const itemText = sentences[j].trim();
         if (!itemText) continue;
 
-        const parts = itemText.split(translationRegex);
+        let mainPart = itemText;
+        const examples: string[] = [];
+
+        if (itemText.includes(exampleSplitter)) {
+          const partsWithExample = itemText.split(exampleSplitter);
+          mainPart = partsWithExample[0].trim();
+
+          for (let e = 1; e < partsWithExample.length; e++) {
+            const ex = partsWithExample[e].trim();
+            if (ex) examples.push(ex);
+          }
+        }
+
+        const parts = mainPart.split(translationRegex);
 
         if (parts.length > 1 && parts[1]) {
           const front = parts[0]
-            .split(",")
+            .split(synonymSplitter)
             .map((s) => s.trim())
             .filter(Boolean);
+
           const back = parts[parts.length - 1]
-            .split(",")
+            .split(synonymSplitter)
             .map((s) => s.trim())
             .filter(Boolean);
-          result.push({ front, back });
+
+          result.push({
+            front,
+            back,
+            examples: examples.length > 0 ? examples : undefined,
+          });
         } else {
-          const front = itemText
-            .split(",")
+          const front = mainPart
+            .split(synonymSplitter)
             .map((s) => s.trim())
             .filter(Boolean);
-          result.push({ front, back: [] });
+
+          result.push({
+            front,
+            back: [],
+            examples: examples.length > 0 ? examples : undefined,
+          });
         }
       }
     }
@@ -309,11 +349,11 @@ export class WordInteraction {
           this.dictionary.language.source,
           this.dictionary.language.target,
         );
-        console.log("🔍 AI RETURNED BACK:", back); // Что тут?
+
         item.back = back;
-        item.examples = examples;
+        item.examples =
+          item.examples && item.examples.length > 0 ? item.examples : examples;
         item.front = front;
-        console.log("🔍 ITEM.BACK BEFORE FLASHCARD:", item.back); // А тут?
       }
 
       const flashcard = new Flashcard();
@@ -323,8 +363,6 @@ export class WordInteraction {
       flashcard.createdAt = Date.now();
       flashcard.quality = [];
       flashcard.user = this.user.id;
-      console.log("🔍 FLASHCARD.BACK AFTER ASSIGN:", flashcard.back); // А что тут?
-
 
       await flashcard.save();
       this.dictionary.flashcards.push(flashcard);
@@ -333,6 +371,8 @@ export class WordInteraction {
     }
 
     await this.syncronize();
+
+    console.log(this.enter);
     return flashcards;
   }
 
@@ -344,11 +384,14 @@ export class WordInteraction {
   ): Promise<{ front: string[]; back: string[]; examples: string[] }> {
     const quota = await getCurrentQuota(
       this.user.id,
-      ModelUpdaterWorker.translate_and_expand.name,
+      ModelUpdaterWorker.translate_and_expand.id,
     );
 
     if (!quota) {
-      throw new Error(text("base_interaction.quota_end", this.languageCode));
+      throw new Error(
+        text("base_interaction.quota_end", this.languageCode) +
+          `(model: ${ModelUpdaterWorker.translate_and_expand.id}, user: ${this.user.id})`,
+      );
     }
 
     const SELECTED_AI_MODEL = ModelUpdaterWorker.translate_and_expand.id;
@@ -358,10 +401,26 @@ export class WordInteraction {
 
     let datestamp = Date.now();
 
-    const { temperature, maxTokens } = getAiRequestOptions(
-      SELECTED_AI_MODEL,
-    );
+    const { temperature, maxTokens } = getAiRequestOptions(SELECTED_AI_MODEL);
 
+    const date = Date.now();
+    let send = false;
+
+    setTimeout(async () => {
+      // if(send) return;
+      const msg = await TelegramClient.api.sendMessage({
+        chat_id: this.user.telegramIDs[0],
+        text: `[DeveloperNotice]: This AI request <a href="https://t.me/c/2868785559/343"> is taking too much time.</a> Please wait.`,
+        parse_mode: "HTML",
+      });
+
+      setTimeout(async () => {
+        await TelegramClient.api.deleteMessage({
+          chat_id: this.user.telegramIDs[0],
+          message_id: msg.message_id,
+        });
+      }, 7500);
+    }, 10000);
     const response = await OpenAIClient.responses.create({
       model: SELECTED_AI_MODEL,
       instructions: `[SYSTEM]
@@ -388,6 +447,10 @@ JSON OUTPUT EXAMPLE: {"front":["закат солнца", "закат", "сум�
       temperature: temperature,
       max_output_tokens: maxTokens,
     });
+
+    console.log((Date.now() - date) / 1000 + "ms for one request.");
+
+    send = true;
 
     console.log("[AI DEBUG] Raw Response:", response.output_text);
 
@@ -418,22 +481,81 @@ JSON OUTPUT EXAMPLE: {"front":["закат солнца", "закат", "сум�
       console.error("[AI ERROR] Failed to parse JSON:", e);
       return { front: data, back: ["AI_PARSE_ERROR"], examples: [] };
     }
-  };
+  }
 
-  builder(){
+  builder() {
     const embeds: EmbedBuilder[] = [];
 
     this.flashcards_created.map((flashcard) => {
       embeds.push(
-        new EmbedBuilder()
-        .setDescription(
-          `**${flashcard.front.join(", ")}**\n**${flashcard.back.join(", ")}**\n\n${flashcard.examples?.join("\n")}`
-        )
+        new EmbedBuilder().setDescription(
+          `**${flashcard.front.join(", ")}**\n**${flashcard.back.join(", ")}**\n\n${flashcard.examples?.join("\n")}`,
+        ),
       );
     });
 
-    const text = `ctx fwd 2002`
+    const lang = this.languageCode;
+    const action =
+      this.enter.method === InputMethod.File
+        ? text("word_interaction.WORD_ACTION_IMPORTED", lang)
+        : text("word_interaction.WORD_ACTION_ADDED", lang);
 
-    return { embeds, text };
+    const langPair = `${this.sourceLanguage}-${this.targetLanguage}`;
+    let responseText = "";
+
+    // Обработка Batch-ввода
+    if (this.enter.quantity === InputQuantity.Batch) {
+      const flashcardsCount = this.flashcards_created.length;
+      let wordsCount = 0;
+      let translationsCount = 0;
+
+      for (const fc of this.flashcards_created) {
+        wordsCount += fc.front.length;
+        translationsCount += fc.back.length;
+      }
+
+      responseText = text("word_interaction.RESPONSE_BATCH", lang)
+        .replace("{action}", action)
+        .replace("{count}", String(flashcardsCount))
+        .replace("{langPair}", langPair)
+        .replace("{wordsCount}", String(wordsCount))
+        .replace("{translationsCount}", String(translationsCount));
+    } else {
+      // Обработка Single-ввода
+      const flashcard = this.flashcards_created[0];
+
+      if (flashcard) {
+        const word = flashcard.front.join(", ");
+        const translation = flashcard.back.join(", ");
+
+        // Если изначально перевод не предоставили, значит отработал AI
+        const isAi = this.enter.state === TranslationState.Incomplete;
+        const baseKey = isAi
+          ? "word_interaction.RESPONSE_SINGLE_AI"
+          : "word_interaction.RESPONSE_SINGLE_MANUAL";
+
+        responseText = text(baseKey, lang)
+          .replace("{action}", action)
+          .replace("{word}", word)
+          .replace("{langPair}", langPair)
+          .replace("{translation}", translation);
+
+        // Обработка примеров, если они существуют
+        if (flashcard.examples && flashcard.examples.length > 0) {
+          const headerKey = isAi
+            ? "word_interaction.EXAMPLES_AI_HEADER"
+            : "word_interaction.EXAMPLES_MANUAL_HEADER";
+
+          const formattedExamples = flashcard.examples
+            .map((ex, index) => `${index + 1}. ${ex}`)
+            .join("\n");
+
+          responseText += `\n${text(headerKey, lang)}\n${formattedExamples}`;
+        }
+      }
+    }
+
+    // Возвращаем responseText под ключом text
+    return { embeds, text: responseText };
   }
 }

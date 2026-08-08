@@ -68,7 +68,7 @@ if (process.env.stage === "dev") {
     timestamp: Date.now(),
     time: 86400000,
     renewal: Date.now() + 86400000,
-    model: "inclusionai/ling-3.0-flash:free",
+    model: "nvidia/nemotron-nano-9b-v2:free",
     output: 1000000,
     input: 50000000,
   });
